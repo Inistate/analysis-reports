@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" data-palette="#2a78d6,#eb6834,#1baf7a,#eda100">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CabinetPro — Weekly operations review</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:var(--plane);color:var(--ink);line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+.viz-root{
+  color-scheme:light;
+  --plane:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,0.10); --wash:rgba(11,11,11,0.035);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --o1:#86b6ef; --o2:#5598e7; --o3:#2a78d6; --o4:#1c5cab; --o5:#0d366b;
+  --f1:#86b6ef; --f2:#5598e7; --f3:#256abf; --f4:#104281;
+  --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+  --good-ink:#006300; --neg-ink:#b02c2c; --div-pos:#2a78d6; --div-neg:#e34948;
+}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .viz-root{
+  color-scheme:dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,0.10); --wash:rgba(255,255,255,0.04);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --o1:#184f95; --o2:#256abf; --o3:#3987e5; --o4:#86b6ef; --o5:#cde2fb;
+  --f1:#184f95; --f2:#2a78d6; --f3:#6da7ec; --f4:#b7d3f6;
+  --good-ink:#0ca30c; --neg-ink:#e66767; --div-pos:#3987e5; --div-neg:#e66767;
+}}
+:root[data-theme="dark"] .viz-root{
+  color-scheme:dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,0.10); --wash:rgba(255,255,255,0.04);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --o1:#184f95; --o2:#256abf; --o3:#3987e5; --o4:#86b6ef; --o5:#cde2fb;
+  --f1:#184f95; --f2:#2a78d6; --f3:#6da7ec; --f4:#b7d3f6;
+  --good-ink:#0ca30c; --neg-ink:#e66767; --div-pos:#3987e5; --div-neg:#e66767;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 72px}
+header.rep{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;
+  justify-content:space-between;margin-bottom:6px}
+.eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  font-weight:600;margin:0 0 6px}
+h1{font-size:27px;line-height:1.2;margin:0;font-weight:640;letter-spacing:-.015em}
+.sub{color:var(--ink2);font-size:14px;margin:8px 0 0}
+.themebtn{font:inherit;font-size:12.5px;color:var(--ink2);background:var(--surface);
+  border:1px solid var(--ring);border-radius:999px;padding:7px 14px;cursor:pointer;
+  display:inline-flex;gap:7px;align-items:center;white-space:nowrap}
+.themebtn:hover{background:var(--wash)}
+.rule{height:1px;background:var(--grid);border:0;margin:22px 0 26px}
+h2{font-size:16.5px;font-weight:620;margin:38px 0 4px;letter-spacing:-.008em}
+h2:first-of-type{margin-top:26px}
+.lede{color:var(--ink2);font-size:13.5px;margin:0 0 16px;max-width:74ch}
+.hero{background:var(--surface);border:1px solid var(--ring);border-radius:14px;
+  padding:22px 24px;display:flex;flex-wrap:wrap;gap:22px;align-items:center;
+  justify-content:space-between}
+.hero .label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin:0 0 8px}
+.hero .fig{font-size:54px;line-height:1;font-weight:660;letter-spacing:-.03em;margin:0}
+.hero .note{color:var(--ink2);font-size:13.5px;margin:10px 0 0;max-width:52ch}
+.hero .side{display:flex;gap:26px;flex-wrap:wrap}
+.hero .side div{min-width:96px}
+.hero .side .k{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.07em;font-weight:600}
+.hero .side .v{font-size:21px;font-weight:620;margin-top:4px;letter-spacing:-.01em}
+.tiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  margin:16px 0 0}
+.tile{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:15px 16px}
+.tile .k{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.tile .v{font-size:27px;font-weight:640;margin:7px 0 0;letter-spacing:-.02em}
+.tile .d{font-size:12.5px;color:var(--ink2);margin-top:5px}
+.tile.flag{border-left:3px solid var(--critical)}
+.tile.warn{border-left:3px solid var(--warning)}
+.tile.ok{border-left:3px solid var(--good)}
+.up{color:var(--good-ink);font-weight:600}
+.dn{color:var(--neg-ink);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:14px;
+  padding:18px 20px 16px;margin:16px 0 0}
+.card h3{font-size:14.5px;font-weight:620;margin:0}
+.card .cap{font-size:12.5px;color:var(--ink2);margin:5px 0 12px;max-width:78ch}
+.grid2{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 10px;font-size:12.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block;flex:none}
+.legend i.ln{width:14px;height:2px;border-radius:2px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.gl{stroke:var(--grid);stroke-width:1}
+.ax{stroke:var(--axis);stroke-width:1}
+.tk{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.cl{fill:var(--ink2);font-size:11.5px}
+.dl{fill:var(--ink);font-size:11.5px;font-weight:600}
+.mk{cursor:default}
+.mk:hover{opacity:.86}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--grid);vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+  font-weight:600;white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--wash)}
+tr.tot td{font-weight:640;border-top:1px solid var(--axis)}
+.doc{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--ink2)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
+  padding:2px 8px;border-radius:999px;border:1px solid var(--ring);white-space:nowrap}
+.pill.crit{color:var(--critical)} .pill.ser{color:var(--serious)}
+.pill.warn{color:#8a6000} .pill.good{color:var(--good-ink)} .pill.neu{color:var(--ink2)}
+:root[data-theme="dark"] .viz-root .pill.warn{color:var(--warning)}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .viz-root .pill.warn{color:var(--warning)}}
+details.tv{margin-top:12px}
+details.tv>summary{font-size:12.5px;color:var(--ink2);cursor:pointer;
+  padding:6px 0;list-style:none;display:inline-flex;gap:6px;align-items:center;
+  min-height:24px}
+details.tv>summary::-webkit-details-marker{display:none}
+details.tv>summary::before{content:"▸";color:var(--muted);font-size:10px}
+details.tv[open]>summary::before{content:"▾"}
+details.tv>summary:hover{color:var(--ink)}
+.scroll{overflow-x:auto}
+.scroll table{min-width:520px}
+.notes{background:var(--surface);border:1px solid var(--ring);border-radius:14px;
+  padding:18px 20px;margin-top:16px}
+.notes h3{font-size:14px;margin:0 0 10px;font-weight:620}
+.notes ul{margin:0;padding-left:20px;font-size:13px;color:var(--ink2)}
+.notes li{margin:0 0 8px}
+.notes li:last-child{margin-bottom:0}
+.notes b{color:var(--ink);font-weight:620}
+.tip{position:fixed;pointer-events:none;opacity:0;transition:opacity .1s;
+  background:var(--surface);border:1px solid var(--ring);border-radius:9px;
+  padding:8px 11px;font-size:12.5px;color:var(--ink);z-index:99;
+  box-shadow:0 6px 22px rgba(0,0,0,.14);max-width:270px;line-height:1.45}
+.tip b{display:block;font-size:12.5px;margin-bottom:3px}
+.tip s{display:block;text-decoration:none;color:var(--ink2);
+  font-variant-numeric:tabular-nums}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--grid);
+  font-size:12px;color:var(--muted)}
+@media print{.themebtn{display:none}details.tv{display:none}}
+
+body{font-size:15px}
+.wrap{max-width:1220px}
+h1{font-size:31px}
+.qmark{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--s1);
+  font-weight:700;margin:0 0 8px}
+.qsec{margin-top:52px;padding-top:32px;border-top:2px solid var(--grid)}
+.qsec:first-of-type{border-top:0;margin-top:28px}
+.qsec>h2{font-size:27px;font-weight:660;letter-spacing:-.022em;margin:0 0 10px}
+.qsec>.lede{font-size:15.5px;max-width:80ch;margin-bottom:18px}
+.verdict{margin:20px 0 0;padding:19px 23px;border-radius:14px;background:var(--surface);
+  border:1px solid var(--ring);border-left:4px solid var(--s1);display:flex;gap:17px;
+  align-items:flex-start}
+.verdict .ic{font-size:19px;line-height:1.4;flex:none;color:var(--s1)}
+.verdict p{margin:0;font-size:16.5px;line-height:1.5;color:var(--ink);max-width:82ch}
+.verdict.act{border-left-color:var(--good)} .verdict.act .ic{color:var(--good-ink)}
+.verdict.warn{border-left-color:var(--critical)} .verdict.warn .ic{color:var(--critical)}
+.tile .v{font-size:30px}
+.hero .fig{font-size:58px}
+.hero .note{font-size:15px;max-width:56ch}
+.hero .side .v{font-size:22px}
+.owner{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted)}
+footer{font-size:12.5px}
+
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin:30px 0 0;
+  border-bottom:1px solid var(--grid)}
+.tabs button{font:inherit;color:var(--ink2);background:none;border:0;
+  border-bottom:2px solid transparent;padding:11px 15px 12px;cursor:pointer;
+  border-radius:9px 9px 0 0;text-align:left;display:flex;flex-direction:column;gap:3px;
+  line-height:1.25}
+.tabs button b{font-size:14.5px;font-weight:650}
+.tabs button span{font-size:12px;font-weight:500;color:var(--muted)}
+.tabs button:hover{background:var(--wash);color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--s1)}
+.tabs button[aria-selected="true"] span{color:var(--ink2)}
+.panel[hidden]{display:none}
+.qsec.panel{margin-top:0;padding-top:26px;border-top:0}
+.qsec.panel>h2{margin-top:0}
+@media print{.tabs{display:none}.panel[hidden]{display:block}
+  .qsec.panel{margin-top:44px;padding-top:30px;border-top:2px solid var(--grid)}}
+</style>
+</head>
+<body class="viz-root">
+<div class="wrap">
+
+<header class="rep">
+  <div>
+    <p class="eyebrow">CabinetPro Pte Ltd · Weekly operations review</p>
+    <h1>Week of 30 July – 5 August 2026</h1>
+    <p class="sub">Sales · production · delivery · collection · team — assembled from the
+      quotations and enquiries the team entered this week.</p>
+  </div>
+  <button class="themebtn" type="button">◑ <span>Toggle theme</span></button>
+</header>
+<hr class="rule">
+
+<div class="hero">
+  <div>
+    <p class="label">Committed order book</p>
+    <p class="fig">$126,650</p>
+    <p class="note">12 confirmed orders · <b>109 units built and
+      waiting</b> · none delivered yet. Everything below is about moving these out of the
+      warehouse and turning them into cash.</p>
+  </div>
+  <div class="side">
+    <div><div class="k">New enquiries</div><div class="v">45</div></div>
+    <div><div class="k">Need a quote</div><div class="v">55</div></div>
+    <div><div class="k">Overdue calls</div><div class="v">30</div></div>
+    <div><div class="k">Units to deliver</div><div class="v">109</div></div>
+    <div><div class="k">Cash to collect</div><div class="v">$127K</div></div>
+  </div>
+</div>
+<div class="tabs" role="tablist" aria-label="Report section"><button type="button" role="tab" data-for="pipeline" aria-controls="pipeline" aria-selected="false"><b>1. Sales pipeline</b><span>Who needs a call</span></button><button type="button" role="tab" data-for="orders" aria-controls="orders" aria-selected="false"><b>2. Order book</b><span>What we owe customers</span></button><button type="button" role="tab" data-for="delivery" aria-controls="delivery" aria-selected="false"><b>3. Delivery</b><span>What has to move</span></button><button type="button" role="tab" data-for="money" aria-controls="money" aria-selected="false"><b>4. Money</b><span>When it becomes cash</span></button><button type="button" role="tab" data-for="team" aria-controls="team" aria-selected="false"><b>5. Team</b><span>Workload and results</span></button><button type="button" role="tab" data-for="actions" aria-controls="actions" aria-selected="false"><b>6. Take note</b><span>This week&#x27;s five actions</span></button></div><section class="qsec panel" id="pipeline" role="tabpanel" aria-label="Sales pipeline" hidden><h2>Sales pipeline — what needs a person this week</h2><p class="lede">45 new enquiries arrived this week. Every line below is a named customer waiting on somebody in the business — work them in this order.</p><div class="tiles"><div class="tile flag"><div class="k">Qualified, no quote yet</div><div class="v">55</div><div class="d">customers who asked for a price</div></div><div class="tile flag"><div class="k">Overdue callbacks</div><div class="v">30</div><div class="d">$566K · oldest 204 days</div></div><div class="tile flag"><div class="k">Unassigned enquiries</div><div class="v">8</div><div class="d">$58K · no owner</div></div><div class="tile warn"><div class="k">Quotes nobody chased</div><div class="v">7</div><div class="d">$17K · open 10+ days</div></div></div><div class="card"><h3>Longest-waiting customers</h3><p class="cap">Callback date already passed. Six oldest shown; the full list is in the table view.</p><div class="scroll"><table class=""><thead><tr><th class="">Customer ref</th><th class="">Owner</th><th class="">Stage</th><th class="n">Waiting</th><th class="n">Value</th></tr></thead><tbody><tr><td class=""><span class="doc">LD00001</span></td><td class="">Louis</td><td class="">Assigned</td><td class="n">204 days</td><td class="n">$6,500</td></tr><tr><td class=""><span class="doc">LD00017</span></td><td class="">Louis</td><td class="">Contacted</td><td class="n">203 days</td><td class="n">$6,500</td></tr><tr><td class=""><span class="doc">LD00009</span></td><td class="">Louis</td><td class="">Assigned</td><td class="n">196 days</td><td class="n">$6,500</td></tr><tr><td class=""><span class="doc">LD00025</span></td><td class="">Louis</td><td class="">Qualified</td><td class="n">195 days</td><td class="n">$6,500</td></tr><tr><td class=""><span class="doc">LD00002</span></td><td class="">Winnie</td><td class="">Assigned</td><td class="n">172 days</td><td class="n">$10,250</td></tr><tr><td class=""><span class="doc">LD00018</span></td><td class="">Winnie</td><td class="">Contacted</td><td class="n">171 days</td><td class="n">$10,250</td></tr></tbody></table></div><details class="tv"><summary>Table view — all 30 overdue callbacks</summary><div class="scroll"><table class=""><thead><tr><th class="">Customer ref</th><th class="">Owner</th><th class="">Stage</th><th class="">Due</th><th class="n">Waiting</th><th class="n">Value</th></tr></thead><tbody><tr><td class=""><span class="doc">LD00001</span></td><td class="">Louis</td><td class="">Assigned</td><td class="">2026-01-13</td><td class="n">204 days</td><td class="n">$6,500</td></tr><tr><td class=""><span class="doc">LD00017</span></td><td class="">Louis</td><td class="">Contacted</td><td class="">2026-01-14</td><td class="n">203 days</td><td class="n">$6,500</td></tr><tr><td class=""><span class="doc">LD00009</span></td><td class="">Louis</td><td class="">Assigned</td><td class="">2026-01-21</td><td class="n">196 days</td><td class="n">$6,500</td></tr><tr><td class=""><span class="doc">LD00025</span></td><td class="">Louis</td><td class="">Qualified</td><td class="">2026-01-22</td><td class="n">195 days</td><td class="n">$6,500</td></tr><tr><td class=""><span class="doc">LD00002</span></td><td class="">Winnie</td><td class="">Assigned</td><td class="">2026-02-14</td><td class="n">172 days</td><td class="n">$10,250</td></tr><tr><td class=""><span class="doc">LD00018</span></td><td class="">Winnie</td><td class="">Contacted</td><td class="">2026-02-15</td><td class="n">171 days</td><td class="n">$10,250</td></tr><tr><td class=""><span class="doc">LD00010</span></td><td class="">Winnie</td><td class="">Assigned</td><td class="">2026-02-22</td><td class="n">164 days</td><td class="n">$10,250</td></tr><tr><td class=""><span class="doc">LD00026</span></td><td class="">Winnie</td><td class="">Qualified</td><td class="">2026-02-23</td><td class="n">163 days</td><td class="n">$10,250</td></tr><tr><td class=""><span class="doc">LD00003</span></td><td class="">Hui Xin</td><td class="">Assigned</td><td class="">2026-03-15</td><td class="n">143 days</td><td class="n">$14,000</td></tr><tr><td class=""><span class="doc">LD00019</span></td><td class="">Hui Xin</td><td class="">Contacted</td><td class="">2026-03-16</td><td class="n">142 days</td><td class="n">$14,000</td></tr><tr><td class=""><span class="doc">LD00011</span></td><td class="">Hui Xin</td><td class="">Contacted</td><td class="">2026-03-23</td><td class="n">135 days</td><td class="n">$14,000</td></tr><tr><td class=""><span class="doc">LD00027</span></td><td class="">Hui Xin</td><td class="">Qualified</td><td class="">2026-03-24</td><td class="n">134 days</td><td class="n">$14,000</td></tr><tr><td class=""><span class="doc">LD00004</span></td><td class="">Xiao Wei</td><td class="">Assigned</td><td class="">2026-04-16</td><td class="n">111 days</td><td class="n">$17,750</td></tr><tr><td class=""><span class="doc">LD00020</span></td><td class="">Xiao Wei</td><td class="">Contacted</td><td class="">2026-04-17</td><td class="n">110 days</td><td class="n">$17,750</td></tr><tr><td class=""><span class="doc">LD00012</span></td><td class="">Xiao Wei</td><td class="">Contacted</td><td class="">2026-04-24</td><td class="n">103 days</td><td class="n">$17,750</td></tr><tr><td class=""><span class="doc">LD00028</span></td><td class="">Xiao Wei</td><td class="">Qualified</td><td class="">2026-04-25</td><td class="n">102 days</td><td class="n">$17,750</td></tr><tr><td class=""><span class="doc">LD00005</span></td><td class="">Louis</td><td class="">Assigned</td><td class="">2026-05-17</td><td class="n">80 days</td><td class="n">$21,500</td></tr><tr><td class=""><span class="doc">LD00021</span></td><td class="">Louis</td><td class="">Qualified</td><td class="">2026-05-18</td><td class="n">79 days</td><td class="n">$21,500</td></tr><tr><td class=""><span class="doc">LD00013</span></td><td class="">Louis</td><td class="">Contacted</td><td class="">2026-05-25</td><td class="n">72 days</td><td class="n">$21,500</td></tr><tr><td class=""><span class="doc">LD00029</span></td><td class="">Louis</td><td class="">Qualified</td><td class="">2026-05-26</td><td class="n">71 days</td><td class="n">$21,500</td></tr><tr><td class=""><span class="doc">LD00030</span></td><td class="">Winnie</td><td class="">Qualified</td><td class="">2026-06-12</td><td class="n">54 days</td><td class="n">$25,250</td></tr><tr><td class=""><span class="doc">LD00006</span></td><td class="">Winnie</td><td class="">Assigned</td><td class="">2026-06-18</td><td class="n">48 days</td><td class="n">$25,250</td></tr><tr><td class=""><span class="doc">LD00022</span></td><td class="">Winnie</td><td class="">Qualified</td><td class="">2026-06-19</td><td class="n">47 days</td><td class="n">$25,250</td></tr><tr><td class=""><span class="doc">LD00014</span></td><td class="">Winnie</td><td class="">Contacted</td><td class="">2026-06-26</td><td class="n">40 days</td><td class="n">$25,250</td></tr><tr><td class=""><span class="doc">LD00015</span></td><td class="">Hui Xin</td><td class="">Contacted</td><td class="">2026-07-12</td><td class="n">24 days</td><td class="n">$29,000</td></tr><tr><td class=""><span class="doc">LD00007</span></td><td class="">Hui Xin</td><td class="">Assigned</td><td class="">2026-07-19</td><td class="n">17 days</td><td class="n">$29,000</td></tr><tr><td class=""><span class="doc">LD00023</span></td><td class="">Hui Xin</td><td class="">Qualified</td><td class="">2026-07-20</td><td class="n">16 days</td><td class="n">$29,000</td></tr><tr><td class=""><span class="doc">LD00008</span></td><td class="">Xiao Wei</td><td class="">Assigned</td><td class="">2026-08-04</td><td class="n">1 days</td><td class="n">$32,750</td></tr><tr><td class=""><span class="doc">LD00016</span></td><td class="">Xiao Wei</td><td class="">Contacted</td><td class="">2026-08-04</td><td class="n">1 days</td><td class="n">$32,750</td></tr><tr><td class=""><span class="doc">LD00024</span></td><td class="">Xiao Wei</td><td class="">Qualified</td><td class="">2026-08-04</td><td class="n">1 days</td><td class="n">$32,750</td></tr><tr class='tot'><td class="">30 customers</td><td class=""></td><td class=""></td><td class=""></td><td class="n"></td><td class="n">$566,250</td></tr></tbody></table></div></details></div><div class="card"><h3>Quotations sent but not chased</h3><p class="cap">Open for ten days or more with no confirmation, rejection or follow-up recorded.</p><div class="scroll"><table class=""><thead><tr><th class="">Quotation</th><th class="">Customer</th><th class="">Owner</th><th class="n">Open</th><th class="n">Value</th></tr></thead><tbody><tr><td class=""><span class="doc">QTT00021</span></td><td class="">Foundry Homeworks Pte Ltd</td><td class="">Hui Xin</td><td class="n">35 days</td><td class="n">$2,400</td></tr><tr><td class=""><span class="doc">QTT00022</span></td><td class="">Parkside Cabinetry Pte Ltd</td><td class="">Xiao Wei</td><td class="n">34 days</td><td class="n">$1,640</td></tr><tr><td class=""><span class="doc">QTT00023</span></td><td class="">Kindred Interior Projects Pte Ltd</td><td class="">Louis</td><td class="n">33 days</td><td class="n">$5,050</td></tr><tr><td class=""><span class="doc">QTT00024</span></td><td class="">Crownline Renovation Pte Ltd</td><td class="">Winnie</td><td class="n">32 days</td><td class="n">$750</td></tr><tr><td class=""><span class="doc">QTT00025</span></td><td class="">Noble Oak Studio Pte Ltd</td><td class="">Hui Xin</td><td class="n">31 days</td><td class="n">$2,330</td></tr><tr><td class=""><span class="doc">QTT00010</span></td><td class="">Terrace &amp; Timber Pte Ltd</td><td class="">Xiao Wei</td><td class="n">16 days</td><td class="n">$1,100</td></tr><tr><td class=""><span class="doc">QTT00017</span></td><td class="">Monument Interiors Pte Ltd</td><td class="">Hui Xin</td><td class="n">14 days</td><td class="n">$3,240</td></tr><tr class='tot'><td class="">7 quotations</td><td class=""></td><td class=""></td><td class="n"></td><td class="n">$16,510</td></tr></tbody></table></div></div>
+<div class="verdict warn"><span class="ic">!</span>
+  <p><b>55 quotations to write, 30 calls to return,
+     8 enquiries to assign and 7 quotes to chase.</b>
+     Every one of them is a customer who already came to us — no new demand needs to be
+     found to act on this list.</p>
+</div></section><section class="qsec panel" id="orders" role="tabpanel" aria-label="Order book" hidden><h2>The order book — what the workshop owes customers</h2><p class="lede">Once a customer confirms, the quotation becomes a job. There are <b>12 live orders carrying 109 units</b> worth $126,650. Every unit is marked built and ready; <b>none has been delivered</b>.</p><div class="tiles"><div class="tile "><div class="k">Live orders</div><div class="v">12</div><div class="d">$126,650 committed</div></div><div class="tile "><div class="k">Units built</div><div class="v">109</div><div class="d">ready in the warehouse</div></div><div class="tile flag"><div class="k">Units delivered</div><div class="v">0</div><div class="d">nothing has left yet</div></div><div class="tile warn"><div class="k">Oldest order</div><div class="v">28 days</div><div class="d">since the quotation was raised</div></div></div><div class="card"><h3>Where each order is stuck, and whose job it is</h3><p class="cap">The five fulfilment stages in order. The count above each column is the number of orders sitting at that step waiting for the named team to act.</p><svg viewBox="0 0 720 250" role="img" aria-label="chart"><line class="gl" x1="46" y1="216.0" x2="708" y2="216.0"/><text class="tk" x="38" y="219.5" text-anchor="end">0</text><line class="gl" x1="46" y1="150.0" x2="708" y2="150.0"/><text class="tk" x="38" y="153.5" text-anchor="end">2</text><line class="gl" x1="46" y1="84.0" x2="708" y2="84.0"/><text class="tk" x="38" y="87.5" text-anchor="end">4</text><line class="gl" x1="46" y1="18.0" x2="708" y2="18.0"/><text class="tk" x="38" y="21.5" text-anchor="end">6</text><line class="ax" x1="46" y1="216" x2="708" y2="216"/><g class="mk" tabindex="0" data-tip="&lt;b&gt;Confirmed&lt;/b&gt;&lt;s&gt;6&lt;/s&gt;"><rect x="46.0" y="18" width="132.4" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M100.2,216.0 V22.0 Q100.2,18.0 104.2,18.0 H120.2 Q124.2,18.0 124.2,22.0 V216.0 Z"/></g></g><text class="dl" x="112.2" y="11.0" text-anchor="middle">6</text><text class="cl" x="112.2" y="233.0" text-anchor="middle">Confirmed</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Acknowledged&lt;/b&gt;&lt;s&gt;2&lt;/s&gt;"><rect x="178.4" y="18" width="132.4" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M232.6,216.0 V154.0 Q232.6,150.0 236.6,150.0 H252.6 Q256.6,150.0 256.6,154.0 V216.0 Z"/></g></g><text class="dl" x="244.6" y="143.0" text-anchor="middle">2</text><text class="cl" x="244.6" y="233.0" text-anchor="middle">Acknowledged</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Ready&lt;/b&gt;&lt;s&gt;2&lt;/s&gt;"><rect x="310.8" y="18" width="132.4" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M365.0,216.0 V154.0 Q365.0,150.0 369.0,150.0 H385.0 Q389.0,150.0 389.0,154.0 V216.0 Z"/></g></g><text class="dl" x="377.0" y="143.0" text-anchor="middle">2</text><text class="cl" x="377.0" y="233.0" text-anchor="middle">Ready</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Assigned&lt;/b&gt;&lt;s&gt;1&lt;/s&gt;"><rect x="443.2" y="18" width="132.4" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M497.4,216.0 V187.0 Q497.4,183.0 501.4,183.0 H517.4 Q521.4,183.0 521.4,187.0 V216.0 Z"/></g></g><text class="dl" x="509.4" y="176.0" text-anchor="middle">1</text><text class="cl" x="509.4" y="233.0" text-anchor="middle">Assigned</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;WIP&lt;/b&gt;&lt;s&gt;1&lt;/s&gt;"><rect x="575.6" y="18" width="132.4" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M629.8,216.0 V187.0 Q629.8,183.0 633.8,183.0 H649.8 Q653.8,183.0 653.8,187.0 V216.0 Z"/></g></g><text class="dl" x="641.8" y="176.0" text-anchor="middle">1</text><text class="cl" x="641.8" y="233.0" text-anchor="middle">WIP</text></svg><div class="scroll"><table class=""><thead><tr><th class="">Stage</th><th class="">Owned by</th><th class="">Next action</th><th class="n">Orders</th><th class="n">Units</th><th class="n">Value</th></tr></thead><tbody><tr><td class="">Confirmed</td><td class=""><span class="owner">Sales admin</span></td><td class="">Acknowledge the order</td><td class="n">6</td><td class="n">74</td><td class="n">$96,960</td></tr><tr><td class="">Acknowledged</td><td class=""><span class="owner">Procurement</span></td><td class="">Complete procurement</td><td class="n">2</td><td class="n">19</td><td class="n">$18,930</td></tr><tr><td class="">Ready</td><td class=""><span class="owner">Store</span></td><td class="">Assign a delivery</td><td class="n">2</td><td class="n">8</td><td class="n">$4,850</td></tr><tr><td class="">Assigned</td><td class=""><span class="owner">Store</span></td><td class="">Confirm loading</td><td class="n">1</td><td class="n">4</td><td class="n">$3,440</td></tr><tr><td class="">WIP</td><td class=""><span class="owner">Driver</span></td><td class="">Record the delivery</td><td class="n">1</td><td class="n">4</td><td class="n">$2,470</td></tr><tr class='tot'><td class="">All stages</td><td class=""></td><td class=""></td><td class="n">12</td><td class="n">109</td><td class="n">$126,650</td></tr></tbody></table></div></div><div class="card"><h3>Every live order</h3><p class="cap">Sorted by how long it has been waiting. Negative days mean the quotation is dated ahead — those are new orders, not late ones.</p><div class="scroll"><table class=""><thead><tr><th class="">Order</th><th class="">Customer</th><th class="">Stage</th><th class="">Next action</th><th class="n">Units</th><th class="n">Value</th><th class="n">Waiting</th></tr></thead><tbody><tr><td class=""><span class="doc">QTT00016</span></td><td class="">Lighthouse Home Concepts Pte Ltd</td><td class="">Ready</td><td class="">Assign a delivery</td><td class="n">3</td><td class="n">$2,460</td><td class="n">28 days</td></tr><tr><td class=""><span class="doc">QTT00015</span></td><td class="">Sagewood Renovation Pte Ltd</td><td class="">WIP</td><td class="">Record the delivery</td><td class="n">4</td><td class="n">$2,470</td><td class="n">26 days</td></tr><tr><td class=""><span class="doc">QTT00014</span></td><td class="">Canvas Interior Works Pte Ltd</td><td class="">Assigned</td><td class="">Confirm loading</td><td class="n">4</td><td class="n">$3,440</td><td class="n">24 days</td></tr><tr><td class=""><span class="doc">QTT00013</span></td><td class="">Riverview Cabinetry Pte Ltd</td><td class="">Ready</td><td class="">Assign a delivery</td><td class="n">5</td><td class="n">$2,390</td><td class="n">21 days</td></tr><tr><td class=""><span class="doc">QTT00012</span></td><td class="">Cobalt Home Studio Pte Ltd</td><td class="">Acknowledged</td><td class="">Complete procurement</td><td class="n">2</td><td class="n">$1,180</td><td class="n">18 days</td></tr><tr><td class=""><span class="doc">QTT00011</span></td><td class="">Oakridge Living Pte Ltd</td><td class="">Confirmed</td><td class="">Acknowledge the order</td><td class="n">6</td><td class="n">$4,460</td><td class="n">11 days</td></tr><tr><td class=""><span class="doc">QTT00004</span></td><td class="">Westbay Kitchens Pte Ltd</td><td class="">Confirmed</td><td class="">Acknowledge the order</td><td class="n">20</td><td class="n">$29,000</td><td class="n">new</td></tr><tr><td class=""><span class="doc">QTT00005</span></td><td class="">Fieldstone Living Pte Ltd</td><td class="">Confirmed</td><td class="">Acknowledge the order</td><td class="n">23</td><td class="n">$32,750</td><td class="n">new</td></tr><tr><td class=""><span class="doc">QTT00006</span></td><td class="">Lattice Home Concepts Pte Ltd</td><td class="">Acknowledged</td><td class="">Complete procurement</td><td class="n">17</td><td class="n">$17,750</td><td class="n">new</td></tr><tr><td class=""><span class="doc">QTT00007</span></td><td class="">Axis Renovation Pte Ltd</td><td class="">Confirmed</td><td class="">Acknowledge the order</td><td class="n">10</td><td class="n">$14,000</td><td class="n">new</td></tr><tr><td class=""><span class="doc">QTT00008</span></td><td class="">Houseform Studio Pte Ltd</td><td class="">Confirmed</td><td class="">Acknowledge the order</td><td class="n">8</td><td class="n">$10,250</td><td class="n">new</td></tr><tr><td class=""><span class="doc">QTT00009</span></td><td class="">Juniper Cabinet Works Pte Ltd</td><td class="">Confirmed</td><td class="">Acknowledge the order</td><td class="n">7</td><td class="n">$6,500</td><td class="n">new</td></tr><tr class='tot'><td class="">12 orders</td><td class=""></td><td class=""></td><td class=""></td><td class="n">109</td><td class="n">$126,650</td><td class="n"></td></tr></tbody></table></div></div><div class="card"><h3>What the orders are actually made of</h3><p class="cap">Units on the live order book by product. <b>3-Door Wardrobe accounts for 71 of 109 units — 65% of everything owed.</b></p><svg viewBox="0 0 720 296" role="img"><line class="ax" x1="230" y1="8" x2="230" y2="288"/><g class="mk" tabindex="0" data-tip="&lt;b&gt;3-Door Wardrobe&lt;/b&gt;&lt;s&gt;71&lt;/s&gt;"><rect x="0" y="8.0" width="720" height="40" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,18.0 H658.0 Q662.0,18.0 662.0,22.0 V34.0 Q662.0,38.0 658.0,38.0 H230.0 Z"/></g></g><text class="cl" x="220" y="32.0" text-anchor="end">3-Door Wardrobe</text><text class="dl" x="670.0" y="32.0">71</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Bathroom Vanity 800mm&lt;/b&gt;&lt;s&gt;7&lt;/s&gt;"><rect x="0" y="48.0" width="720" height="40" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,58.0 H268.6 Q272.6,58.0 272.6,62.0 V74.0 Q272.6,78.0 268.6,78.0 H230.0 Z"/></g></g><text class="cl" x="220" y="72.0" text-anchor="end">Bathroom Vanity 800mm</text><text class="dl" x="280.6" y="72.0">7</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Dining Table 1600mm&lt;/b&gt;&lt;s&gt;5&lt;/s&gt;"><rect x="0" y="88.0" width="720" height="40" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,98.0 H256.4 Q260.4,98.0 260.4,102.0 V114.0 Q260.4,118.0 256.4,118.0 H230.0 Z"/></g></g><text class="cl" x="220" y="112.0" text-anchor="end">Dining Table 1600mm</text><text class="dl" x="268.4" y="112.0">5</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Home Bar Cabinet 1200mm&lt;/b&gt;&lt;s&gt;5&lt;/s&gt;"><rect x="0" y="128.0" width="720" height="40" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,138.0 H256.4 Q260.4,138.0 260.4,142.0 V154.0 Q260.4,158.0 256.4,158.0 H230.0 Z"/></g></g><text class="cl" x="220" y="152.0" text-anchor="end">Home Bar Cabinet 1200mm</text><text class="dl" x="268.4" y="152.0">5</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Floating Shelf 900mm&lt;/b&gt;&lt;s&gt;3&lt;/s&gt;"><rect x="0" y="168.0" width="720" height="40" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,178.0 H244.3 Q248.3,178.0 248.3,182.0 V194.0 Q248.3,198.0 244.3,198.0 H230.0 Z"/></g></g><text class="cl" x="220" y="192.0" text-anchor="end">Floating Shelf 900mm</text><text class="dl" x="256.3" y="192.0">3</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Office Storage Cabinet&lt;/b&gt;&lt;s&gt;3&lt;/s&gt;"><rect x="0" y="208.0" width="720" height="40" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,218.0 H244.3 Q248.3,218.0 248.3,222.0 V234.0 Q248.3,238.0 244.3,238.0 H230.0 Z"/></g></g><text class="cl" x="220" y="232.0" text-anchor="end">Office Storage Cabinet</text><text class="dl" x="256.3" y="232.0">3</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Other (11 products)&lt;/b&gt;&lt;s&gt;15&lt;/s&gt;"><rect x="0" y="248.0" width="720" height="40" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,258.0 H317.3 Q321.3,258.0 321.3,262.0 V274.0 Q321.3,278.0 317.3,278.0 H230.0 Z"/></g></g><text class="cl" x="220" y="272.0" text-anchor="end">Other (11 products)</text><text class="dl" x="329.3" y="272.0">15</text></svg><details class="tv"><summary>Table view — all 17 products</summary><div class="scroll"><table class=""><thead><tr><th class="">Product</th><th class="n">Units on order</th><th class="n">Share</th></tr></thead><tbody><tr><td class="">3-Door Wardrobe</td><td class="n">71</td><td class="n">65.1%</td></tr><tr><td class="">Bathroom Vanity 800mm</td><td class="n">7</td><td class="n">6.4%</td></tr><tr><td class="">Dining Table 1600mm</td><td class="n">5</td><td class="n">4.6%</td></tr><tr><td class="">Home Bar Cabinet 1200mm</td><td class="n">5</td><td class="n">4.6%</td></tr><tr><td class="">Floating Shelf 900mm</td><td class="n">3</td><td class="n">2.8%</td></tr><tr><td class="">Office Storage Cabinet</td><td class="n">3</td><td class="n">2.8%</td></tr><tr><td class="">Kitchen Island 1500mm</td><td class="n">3</td><td class="n">2.8%</td></tr><tr><td class="">Display Cabinet 900mm</td><td class="n">2</td><td class="n">1.8%</td></tr><tr><td class="">Laundry Cabinet 900mm</td><td class="n">2</td><td class="n">1.8%</td></tr><tr><td class="">Bookcase 800mm</td><td class="n">1</td><td class="n">0.9%</td></tr><tr><td class="">Microwave Cabinet 600mm</td><td class="n">1</td><td class="n">0.9%</td></tr><tr><td class="">Wall Cabinet 600mm</td><td class="n">1</td><td class="n">0.9%</td></tr><tr><td class="">Chest of Drawers 800mm</td><td class="n">1</td><td class="n">0.9%</td></tr><tr><td class="">Storage Bench 1200mm</td><td class="n">1</td><td class="n">0.9%</td></tr><tr><td class="">Entrance Console 1200mm</td><td class="n">1</td><td class="n">0.9%</td></tr><tr><td class="">Bedside Table 500mm</td><td class="n">1</td><td class="n">0.9%</td></tr><tr><td class="">Shoe Bench with Storage</td><td class="n">1</td><td class="n">0.9%</td></tr><tr class='tot'><td class="">All products</td><td class="n">109</td><td class="n">100.0%</td></tr></tbody></table></div></details></div>
+<div class="verdict warn"><span class="ic">!</span>
+  <p><b>6 of the 12 orders have not even been acknowledged</b>, and they
+     carry $96,960 — three quarters of the order book. The work is built and paid for
+     in materials; it is the paperwork step that is holding it. Two thirds of all units are the
+     same product, so a single production run clears most of the backlog.</p>
+</div></section><section class="qsec panel" id="delivery" role="tabpanel" aria-label="Delivery" hidden><h2>Delivery — what has to move</h2><p class="lede">Each order carries a delivery term. Door-to-door needs a lorry, a driver and a slot; self-collect only needs the customer told that it is ready.</p><div class="card"><h3>Delivery load on the order book</h3><p class="cap">Door-to-door orders are the ones that consume lorry and driver time.</p><svg viewBox="0 0 720 104" role="img"><line class="ax" x1="230" y1="8" x2="230" y2="96"/><g class="mk" tabindex="0" data-tip="&lt;b&gt;DTD — 8 orders&lt;/b&gt;&lt;s&gt;79 units&lt;/s&gt;"><rect x="0" y="8.0" width="720" height="44" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,20.0 H658.0 Q662.0,20.0 662.0,24.0 V36.0 Q662.0,40.0 658.0,40.0 H230.0 Z"/></g></g><text class="cl" x="220" y="34.0" text-anchor="end">DTD — 8 orders</text><text class="dl" x="670.0" y="34.0">79 units</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Self Collect — 4 orders&lt;/b&gt;&lt;s&gt;30 units&lt;/s&gt;"><rect x="0" y="52.0" width="720" height="44" fill="transparent"/><g fill="var(--s1)"><path d="M230.0,64.0 H390.1 Q394.1,64.0 394.1,68.0 V80.0 Q394.1,84.0 390.1,84.0 H230.0 Z"/></g></g><text class="cl" x="220" y="78.0" text-anchor="end">Self Collect — 4 orders</text><text class="dl" x="402.1" y="78.0">30 units</text></svg><div class="scroll"><table class=""><thead><tr><th class="">Delivery term</th><th class="n">Orders</th><th class="n">Units</th><th class="n">Value</th><th class="">What it needs</th></tr></thead><tbody><tr><td class="">DTD</td><td class="n">8</td><td class="n">79</td><td class="n">$98,750</td><td class="">Lorry, driver and a delivery slot</td></tr><tr><td class="">Self Collect</td><td class="n">4</td><td class="n">30</td><td class="n">$27,900</td><td class="">A call telling the customer it is ready</td></tr><tr class='tot'><td class="">All orders</td><td class="n">12</td><td class="n">109</td><td class="n">$126,650</td><td class=""></td></tr></tbody></table></div></div><div class="card"><h3>Orders already past the workshop and waiting on transport</h3><p class="cap">These are built, checked and sitting. None has a driver, a lorry or a delivery date recorded against it.</p><div class="scroll"><table class=""><thead><tr><th class="">Order</th><th class="">Customer</th><th class="">Stage</th><th class="n">Units</th><th class="n">Value</th><th class="n">Waiting</th><th class="">Next action</th></tr></thead><tbody><tr><td class=""><span class="doc">QTT00016</span></td><td class="">Lighthouse Home Concepts Pte Ltd</td><td class="">Ready</td><td class="n">3</td><td class="n">$2,460</td><td class="n">28 days</td><td class="">Assign a delivery</td></tr><tr><td class=""><span class="doc">QTT00015</span></td><td class="">Sagewood Renovation Pte Ltd</td><td class="">WIP</td><td class="n">4</td><td class="n">$2,470</td><td class="n">26 days</td><td class="">Record the delivery</td></tr><tr><td class=""><span class="doc">QTT00014</span></td><td class="">Canvas Interior Works Pte Ltd</td><td class="">Assigned</td><td class="n">4</td><td class="n">$3,440</td><td class="n">24 days</td><td class="">Confirm loading</td></tr><tr><td class=""><span class="doc">QTT00013</span></td><td class="">Riverview Cabinetry Pte Ltd</td><td class="">Ready</td><td class="n">5</td><td class="n">$2,390</td><td class="n">21 days</td><td class="">Assign a delivery</td></tr><tr class='tot'><td class="">4 orders</td><td class=""></td><td class=""></td><td class="n">16</td><td class="n">$10,760</td><td class="n"></td><td class=""></td></tr></tbody></table></div></div>
+<div class="verdict"><span class="ic">→</span>
+  <p>8 door-to-door orders carry 79 units — that is the week's transport
+     plan. The 4 orders above are the ones to schedule first: they are finished goods
+     taking up floor space and none of them has a driver assigned.</p>
+</div></section><section class="qsec panel" id="money" role="tabpanel" aria-label="Money" hidden><h2>Money — when this order book turns into cash</h2><p class="lede">Each order carries a payment term agreed at quotation. Nothing is collected until the goods are delivered, so every day an order sits in the warehouse is a day the payment clock has not started.</p><div class="card"><h3>Committed value by payment term</h3><p class="cap">Cash on delivery is collected the day the goods move. Everything else starts counting only after delivery.</p><svg viewBox="0 0 720 250" role="img" aria-label="chart"><line class="gl" x1="46" y1="216.0" x2="708" y2="216.0"/><text class="tk" x="38" y="219.5" text-anchor="end">$0</text><line class="gl" x1="46" y1="176.4" x2="708" y2="176.4"/><text class="tk" x="38" y="179.9" text-anchor="end">$10K</text><line class="gl" x1="46" y1="136.8" x2="708" y2="136.8"/><text class="tk" x="38" y="140.3" text-anchor="end">$20K</text><line class="gl" x1="46" y1="97.2" x2="708" y2="97.2"/><text class="tk" x="38" y="100.7" text-anchor="end">$30K</text><line class="gl" x1="46" y1="57.6" x2="708" y2="57.6"/><text class="tk" x="38" y="61.1" text-anchor="end">$40K</text><line class="gl" x1="46" y1="18.0" x2="708" y2="18.0"/><text class="tk" x="38" y="21.5" text-anchor="end">$50K</text><line class="ax" x1="46" y1="216" x2="708" y2="216"/><g class="mk" tabindex="0" data-tip="&lt;b&gt;C.O.D&lt;/b&gt;&lt;s&gt;$21K&lt;/s&gt;"><rect x="46.0" y="18" width="165.5" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M116.8,216.0 V136.1 Q116.8,132.1 120.8,132.1 H136.8 Q140.8,132.1 140.8,136.1 V216.0 Z"/></g></g><text class="dl" x="128.8" y="125.1" text-anchor="middle">$21K</text><text class="cl" x="128.8" y="233.0" text-anchor="middle">C.O.D</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Net 30&lt;/b&gt;&lt;s&gt;$21K&lt;/s&gt;"><rect x="211.5" y="18" width="165.5" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M282.2,216.0 V137.1 Q282.2,133.1 286.2,133.1 H302.2 Q306.2,133.1 306.2,137.1 V216.0 Z"/></g></g><text class="dl" x="294.2" y="126.1" text-anchor="middle">$21K</text><text class="cl" x="294.2" y="233.0" text-anchor="middle">Net 30</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Net 45&lt;/b&gt;&lt;s&gt;$43K&lt;/s&gt;"><rect x="377.0" y="18" width="165.5" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M447.8,216.0 V50.2 Q447.8,46.2 451.8,46.2 H467.8 Q471.8,46.2 471.8,50.2 V216.0 Z"/></g></g><text class="dl" x="459.8" y="39.2" text-anchor="middle">$43K</text><text class="cl" x="459.8" y="233.0" text-anchor="middle">Net 45</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Net 60&lt;/b&gt;&lt;s&gt;$42K&lt;/s&gt;"><rect x="542.5" y="18" width="165.5" height="198" fill="transparent"/><g fill="var(--s1)"><path d="M613.2,216.0 V55.1 Q613.2,51.1 617.2,51.1 H633.2 Q637.2,51.1 637.2,55.1 V216.0 Z"/></g></g><text class="dl" x="625.2" y="44.1" text-anchor="middle">$42K</text><text class="cl" x="625.2" y="233.0" text-anchor="middle">Net 60</text></svg><div class="scroll"><table class=""><thead><tr><th class="">Payment term</th><th class="n">Orders</th><th class="n">Value</th><th class="">Collected how long after delivery</th></tr></thead><tbody><tr><td class="">C.O.D</td><td class="n">2</td><td class="n">$21,190</td><td class="">Same day</td></tr><tr><td class="">Net 30 days</td><td class="n">3</td><td class="n">$20,930</td><td class="">Up to 30 days later</td></tr><tr><td class="">Net 45 days</td><td class="n">4</td><td class="n">$42,890</td><td class="">Up to 45 days later</td></tr><tr><td class="">Net 60 days</td><td class="n">3</td><td class="n">$41,640</td><td class="">Up to 60 days later</td></tr><tr class='tot'><td class="">Order book</td><td class="n">12</td><td class="n">$126,650</td><td class=""></td></tr></tbody></table></div></div>
+<div class="verdict act"><span class="ic">✓</span>
+  <p><b>$21,190 is cash-on-delivery</b> — it lands the moment those 2 orders go
+     out, with no credit period at all. Deliver those first. At the other end,
+     $41,640 sits on 60-day terms, so an order delayed a fortnight in the warehouse is
+     cash delayed to nearly two and a half months after the customer said yes.</p>
+</div></section><section class="qsec panel" id="team" role="tabpanel" aria-label="Team" hidden><h2>The team — workload and results</h2><p class="lede">Open customers are shared almost evenly. What differs is how far each salesperson moves them.</p><div class="card"><h3>Open customers by stage and owner</h3><p class="cap">Light to dark runs from a new enquiry through to a quotation on the table.</p><div class="legend"><span><i class="" style="background:var(--f1)"></i>Not yet contacted</span><span><i class="" style="background:var(--f2)"></i>Contacted</span><span><i class="" style="background:var(--f3)"></i>Qualified</span><span><i class="" style="background:var(--f4)"></i>Quote on the table</span></div><svg viewBox="0 0 720 280" role="img"><line class="gl" x1="46" y1="246.0" x2="708" y2="246.0"/><text class="tk" x="38" y="249.5" text-anchor="end">0</text><line class="gl" x1="46" y1="200.4" x2="708" y2="200.4"/><text class="tk" x="38" y="203.9" text-anchor="end">10</text><line class="gl" x1="46" y1="154.8" x2="708" y2="154.8"/><text class="tk" x="38" y="158.3" text-anchor="end">20</text><line class="gl" x1="46" y1="109.2" x2="708" y2="109.2"/><text class="tk" x="38" y="112.7" text-anchor="end">30</text><line class="gl" x1="46" y1="63.6" x2="708" y2="63.6"/><text class="tk" x="38" y="67.1" text-anchor="end">40</text><line class="gl" x1="46" y1="18.0" x2="708" y2="18.0"/><text class="tk" x="38" y="21.5" text-anchor="end">50</text><line class="ax" x1="46" y1="246" x2="708" y2="246"/><g class="mk" tabindex="0" data-tip="&lt;b&gt;Louis — Not yet contacted&lt;/b&gt;&lt;s&gt;7 of 44 (16%)&lt;/s&gt;" fill="var(--f1)"><path d="M113.8,246.0 V216.1 Q113.8,214.1 115.8,214.1 H141.8 Q143.8,214.1 143.8,216.1 V246.0 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Louis — Contacted&lt;/b&gt;&lt;s&gt;17 of 44 (39%)&lt;/s&gt;" fill="var(--f2)"><path d="M113.8,214.1 V142.6 Q113.8,138.6 117.8,138.6 H139.8 Q143.8,138.6 143.8,142.6 V214.1 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Louis — Qualified&lt;/b&gt;&lt;s&gt;15 of 44 (34%)&lt;/s&gt;" fill="var(--f3)"><path d="M113.8,136.6 V74.2 Q113.8,70.2 117.8,70.2 H139.8 Q143.8,70.2 143.8,74.2 V136.6 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Louis — Quote on the table&lt;/b&gt;&lt;s&gt;5 of 44 (11%)&lt;/s&gt;" fill="var(--f4)"><path d="M113.8,68.2 V51.4 Q113.8,47.4 117.8,47.4 H139.8 Q143.8,47.4 143.8,51.4 V68.2 Z"/></g><text class="dl" x="128.8" y="37.4" text-anchor="middle">44</text><text class="cl" x="128.8" y="263.0" text-anchor="middle">Louis</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Winnie — Not yet contacted&lt;/b&gt;&lt;s&gt;7 of 44 (16%)&lt;/s&gt;" fill="var(--f1)"><path d="M279.2,246.0 V216.1 Q279.2,214.1 281.2,214.1 H307.2 Q309.2,214.1 309.2,216.1 V246.0 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Winnie — Contacted&lt;/b&gt;&lt;s&gt;17 of 44 (39%)&lt;/s&gt;" fill="var(--f2)"><path d="M279.2,214.1 V142.6 Q279.2,138.6 283.2,138.6 H305.2 Q309.2,138.6 309.2,142.6 V214.1 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Winnie — Qualified&lt;/b&gt;&lt;s&gt;14 of 44 (32%)&lt;/s&gt;" fill="var(--f3)"><path d="M279.2,136.6 V78.7 Q279.2,74.7 283.2,74.7 H305.2 Q309.2,74.7 309.2,78.7 V136.6 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Winnie — Quote on the table&lt;/b&gt;&lt;s&gt;6 of 44 (14%)&lt;/s&gt;" fill="var(--f4)"><path d="M279.2,72.7 V51.4 Q279.2,47.4 283.2,47.4 H305.2 Q309.2,47.4 309.2,51.4 V72.7 Z"/></g><text class="dl" x="294.2" y="37.4" text-anchor="middle">44</text><text class="cl" x="294.2" y="263.0" text-anchor="middle">Winnie</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Hui Xin — Not yet contacted&lt;/b&gt;&lt;s&gt;6 of 43 (14%)&lt;/s&gt;" fill="var(--f1)"><path d="M444.8,246.0 V220.6 Q444.8,218.6 446.8,218.6 H472.8 Q474.8,218.6 474.8,220.6 V246.0 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Hui Xin — Contacted&lt;/b&gt;&lt;s&gt;18 of 43 (42%)&lt;/s&gt;" fill="var(--f2)"><path d="M444.8,218.6 V142.6 Q444.8,138.6 448.8,138.6 H470.8 Q474.8,138.6 474.8,142.6 V218.6 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Hui Xin — Qualified&lt;/b&gt;&lt;s&gt;13 of 43 (30%)&lt;/s&gt;" fill="var(--f3)"><path d="M444.8,136.6 V83.3 Q444.8,79.3 448.8,79.3 H470.8 Q474.8,79.3 474.8,83.3 V136.6 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Hui Xin — Quote on the table&lt;/b&gt;&lt;s&gt;6 of 43 (14%)&lt;/s&gt;" fill="var(--f4)"><path d="M444.8,77.3 V55.9 Q444.8,51.9 448.8,51.9 H470.8 Q474.8,51.9 474.8,55.9 V77.3 Z"/></g><text class="dl" x="459.8" y="41.9" text-anchor="middle">43</text><text class="cl" x="459.8" y="263.0" text-anchor="middle">Hui Xin</text><g class="mk" tabindex="0" data-tip="&lt;b&gt;Xiao Wei — Not yet contacted&lt;/b&gt;&lt;s&gt;6 of 43 (14%)&lt;/s&gt;" fill="var(--f1)"><path d="M610.2,246.0 V220.6 Q610.2,218.6 612.2,218.6 H638.2 Q640.2,218.6 640.2,220.6 V246.0 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Xiao Wei — Contacted&lt;/b&gt;&lt;s&gt;18 of 43 (42%)&lt;/s&gt;" fill="var(--f2)"><path d="M610.2,218.6 V142.6 Q610.2,138.6 614.2,138.6 H636.2 Q640.2,138.6 640.2,142.6 V218.6 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Xiao Wei — Qualified&lt;/b&gt;&lt;s&gt;13 of 43 (30%)&lt;/s&gt;" fill="var(--f3)"><path d="M610.2,136.6 V83.3 Q610.2,79.3 614.2,79.3 H636.2 Q640.2,79.3 640.2,83.3 V136.6 Z"/></g><g class="mk" tabindex="0" data-tip="&lt;b&gt;Xiao Wei — Quote on the table&lt;/b&gt;&lt;s&gt;6 of 43 (14%)&lt;/s&gt;" fill="var(--f4)"><path d="M610.2,77.3 V55.9 Q610.2,51.9 614.2,51.9 H636.2 Q640.2,51.9 640.2,55.9 V77.3 Z"/></g><text class="dl" x="625.2" y="41.9" text-anchor="middle">43</text><text class="cl" x="625.2" y="263.0" text-anchor="middle">Xiao Wei</text></svg></div><div class="card"><h3>Scorecard</h3><p class="cap">Same size book each. Revenue and quotation rate are the two columns worth discussing in the meeting.</p><div class="scroll"><table class=""><thead><tr><th class="">Salesperson</th><th class="n">Open customers</th><th class="n">Pipeline</th><th class="n">New this week</th><th class="n">Overdue calls</th><th class="n">Reaches a quote</th><th class="n">Closed</th><th class="n">Revenue</th></tr></thead><tbody><tr><td class="">Xiao Wei</td><td class="n">43</td><td class="n">$852,850</td><td class="n">25</td><td class="n">7</td><td class="n">19.6%</td><td class="n">2</td><td class="n">$50,500</td></tr><tr><td class="">Hui Xin</td><td class="n">43</td><td class="n">$754,400</td><td class="n">4</td><td class="n">7</td><td class="n">19.6%</td><td class="n">2</td><td class="n">$43,000</td></tr><tr><td class="">Winnie</td><td class="n">44</td><td class="n">$639,000</td><td class="n">4</td><td class="n">8</td><td class="n">17.0%</td><td class="n">1</td><td class="n">$10,250</td></tr><tr><td class="">Louis</td><td class="n">44</td><td class="n">$535,800</td><td class="n">4</td><td class="n">8</td><td class="n">14.9%</td><td class="n">1</td><td class="n">$6,500</td></tr><tr class='tot'><td class="">Team</td><td class="n">174</td><td class="n">$2,782,050</td><td class="n">45</td><td class="n">30</td><td class="n"></td><td class="n">6</td><td class="n">$110,250</td></tr></tbody></table></div></div><div class="card"><h3>Drivers</h3><p class="cap">3 drivers are on the team. None has a delivery assigned this week, while 8 door-to-door orders and 79 units are waiting to be scheduled.</p><div class="scroll"><table class=""><thead><tr><th class="">Driver</th><th class="n">Deliveries assigned</th><th class="n">Units</th><th class="">Status</th></tr></thead><tbody><tr><td class="">Aman</td><td class="n">0</td><td class="n">0</td><td class=""><span class="pill warn">! Available — nothing scheduled</span></td></tr><tr><td class="">Saleh</td><td class="n">0</td><td class="n">0</td><td class=""><span class="pill warn">! Available — nothing scheduled</span></td></tr><tr><td class="">Wong Ah Huat</td><td class="n">0</td><td class="n">0</td><td class=""><span class="pill warn">! Available — nothing scheduled</span></td></tr><tr class='tot'><td class="">All drivers</td><td class="n">0</td><td class="n">0</td><td class=""></td></tr></tbody></table></div></div></section><section class="qsec panel" id="actions" role="tabpanel" aria-label="Take note" hidden><h2>Take note this week</h2><p class="lede">Ordered by how much value each one unblocks. Every item names the team that owns it.</p>
+<div class="card"><table>
+  <thead><tr><th style="width:34px"></th><th>Do this</th><th class="owner">Owner</th>
+    <th class="n">Unblocks</th><th>Why it matters this week</th></tr></thead>
+  <tbody>
+    <tr><td><b>1</b></td><td><b>Acknowledge the 6 confirmed orders</b></td>
+      <td><span class="owner">Sales admin</span></td><td class="n">$96,960</td>
+      <td>6 customers have signed and are waiting for the order to be picked up
+        internally. Until this happens procurement cannot start and the delivery clock never
+        begins.</td></tr>
+    <tr><td><b>2</b></td><td><b>Schedule the 4 orders sitting in the warehouse</b></td>
+      <td><span class="owner">Store &amp; drivers</span></td>
+      <td class="n">$10,760</td>
+      <td>Built, checked and waiting up to 28 days with no driver or
+        lorry attached. All 3 drivers are free.</td></tr>
+    <tr><td><b>3</b></td><td><b>Write the 55 outstanding quotations</b></td>
+      <td><span class="owner">Sales</span></td><td class="n">$2.84M pipeline</td>
+      <td>88 customers qualified this year and 33 received a price. At
+        the 18.2% rate quotations already close at, this is the cheapest
+        revenue available.</td></tr>
+    <tr><td><b>4</b></td><td><b>Return the 30 overdue calls and assign the
+      8 new enquiries</b></td>
+      <td><span class="owner">Sales</span></td><td class="n">$566K</td>
+      <td>The oldest has been waiting 204 days. The 8 unassigned
+        enquiries arrived this week and no follow-up clock has started on them.</td></tr>
+    <tr><td><b>5</b></td><td><b>Prioritise the 2 cash-on-delivery orders</b></td>
+      <td><span class="owner">Store</span></td><td class="n">$21,190</td>
+      <td>These collect on the day they move. Every other order starts a 30 to 60 day wait after
+        delivery.</td></tr>
+  </tbody>
+</table></div>
+</section>
+
+<footer>CabinetPro Pte Ltd · weekly operations review · week of 30 July – 5 August 2026 ·
+built from 194 enquiry records and 51 quotations —
+12 of them live orders carrying 109 units.</footer>
+
+</div>
+<script>
+(function(){
+ var r=document.documentElement, b=document.querySelector('.themebtn');
+ if(b) b.addEventListener('click',function(){
+   var cur=r.getAttribute('data-theme');
+   if(!cur) cur=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+   r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+   b.querySelector('span').textContent=cur==='dark'?'Dark mode':'Light mode';
+ });
+ var t=document.createElement('div'); t.className='tip'; document.body.appendChild(t);
+ function show(e){
+   var el=e.target.closest('[data-tip]'); if(!el) return;
+   t.innerHTML=el.getAttribute('data-tip'); t.style.opacity=1;
+   var r0=t.getBoundingClientRect(), x=e.clientX+14, y=e.clientY-12;
+   if(x+r0.width>innerWidth-8) x=e.clientX-r0.width-14;
+   if(y<8) y=8;
+   if(y+r0.height>innerHeight-8) y=innerHeight-r0.height-8;
+   t.style.left=x+'px'; t.style.top=y+'px';
+ }
+ document.addEventListener('mousemove',function(e){
+   if(e.target.closest('[data-tip]')) show(e); else t.style.opacity=0;
+ });
+ document.addEventListener('focusin',function(e){
+   var el=e.target.closest('[data-tip]'); if(!el){t.style.opacity=0;return;}
+   var bb=el.getBoundingClientRect();
+   t.innerHTML=el.getAttribute('data-tip'); t.style.opacity=1;
+   t.style.left=Math.min(bb.left,innerWidth-t.getBoundingClientRect().width-8)+'px';
+   t.style.top=Math.max(8,bb.top-t.getBoundingClientRect().height-8)+'px';
+ });
+})();
+</script>
+<script>
+(function(){
+ var tabs=[].slice.call(document.querySelectorAll('.tabs button'));
+ var panels=[].slice.call(document.querySelectorAll('.panel'));
+ function show(id,push){
+   tabs.forEach(function(t){t.setAttribute('aria-selected', t.dataset.for===id);});
+   panels.forEach(function(p){p.hidden = (p.id!==id);});
+   if(push && location.hash.slice(1)!==id) history.replaceState(null,'','#'+id);
+ }
+ tabs.forEach(function(t){
+   t.addEventListener('click',function(){show(t.dataset.for,true);});
+   t.addEventListener('keydown',function(e){
+     var i=tabs.indexOf(t),n=null;
+     if(e.key==='ArrowRight')n=tabs[(i+1)%tabs.length];
+     if(e.key==='ArrowLeft') n=tabs[(i-1+tabs.length)%tabs.length];
+     if(n){e.preventDefault();n.focus();show(n.dataset.for,true);}
+   });
+ });
+ var h=location.hash.slice(1);
+ show(panels.some(function(p){return p.id===h;})?h:panels[0].id,false);
+ addEventListener('hashchange',function(){
+   var id=location.hash.slice(1);
+   if(panels.some(function(p){return p.id===id;}))show(id,false);
+ });
+})();
+</script>
+</body>
+</html>
