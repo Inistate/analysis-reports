@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Grandway Co. — Performance Review FY2026</title>
+<style>
+  :root{
+    --ink:#1C2B39; --ink-soft:#4A5A6B; --paper:#EFEDE3; --card:#FAF8EF;
+    --rule:#D3CDB8; --rule-strong:#B9B098; --profit:#2F6B4F; --profit-bg:#E3EDE3;
+    --loss:#A63D33; --loss-bg:#F3E1DB; --accent:#8C6D2F; --muted:#8A8672;
+    --serif:Georgia,'Iowan Old Style','Times New Roman',serif;
+    --mono:'JetBrains Mono','SF Mono',Consolas,'Courier New',monospace;
+    --sans:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);}
+  .wrap{max-width:1440px;margin:0 auto;padding:32px 28px 64px;}
+  .masthead{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:22px;}
+  .masthead h1{font-family:var(--serif);font-size:30px;font-weight:700;margin:0;letter-spacing:.2px;}
+  .masthead p{margin:4px 0 0;color:var(--ink-soft);font-size:13.5px;}
+  .masthead .stamp{text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.5;text-transform:uppercase;letter-spacing:.5px;}
+
+  .kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;}
+  .kpi{background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:14px 16px;}
+  .kpi .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:6px;}
+  .kpi .val{font-family:var(--mono);font-size:22px;font-weight:700;}
+  .kpi .sub{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .pos{color:var(--profit);} .neg{color:var(--loss);}
+
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule-strong);margin-bottom:22px;}
+  .tab{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink-soft);background:none;border:none;padding:10px 16px 12px;cursor:pointer;border-bottom:3px solid transparent;letter-spacing:.2px;}
+  .tab:hover{color:var(--ink);}
+  .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* two-column split: charts + tables on the left, insight rail on the right */
+  .split{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start;}
+  .split .col-main{min-width:0;}
+  .split .col-side{min-width:0;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto;}
+  .split .col-side > *:last-child{margin-bottom:0;}
+  @media (max-width:1180px){
+    .split{grid-template-columns:1fr;}
+    .split .col-side{position:static;max-height:none;overflow:visible;}
+  }
+
+  h2.section{font-family:var(--serif);font-size:18px;margin:0 0 4px;}
+  p.deck{color:var(--ink-soft);font-size:13px;margin:0 0 18px;max-width:640px;}
+
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:2px;padding:18px 20px;margin-bottom:22px;}
+  .chartwrap{position:relative;width:100%;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--rule-strong);}
+  td{padding:8px 10px;border-bottom:1px solid var(--rule);}
+  td.num,th.num{text-align:right;font-family:var(--mono);}
+  tr.nodata td{color:var(--muted);font-style:italic;}
+  .badge{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:2px;}
+  .badge.profit{background:var(--profit-bg);color:var(--profit);}
+  .badge.loss{background:var(--loss-bg);color:var(--loss);}
+  .badge.flag{background:#F1EBD5;color:var(--accent);}
+
+  .callout{border-left:3px solid var(--loss);background:var(--loss-bg);padding:12px 16px;margin-bottom:22px;font-size:13.5px;}
+  .callout b{color:var(--loss);}
+
+  .insight{border-left:3px solid var(--accent);background:#F1EBD5;padding:14px 18px;margin-bottom:22px;}
+  .insight .lbl{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);margin-bottom:6px;}
+  .insight ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;}
+  .insight ul li{margin-bottom:5px;}
+  .insight ul li b{color:var(--ink);}
+  .note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;}
+
+  .togglebar{display:flex;gap:8px;margin-bottom:14px;}
+  .togglebtn{font-family:var(--sans);font-size:12.5px;font-weight:600;padding:7px 14px;border:1px solid var(--rule-strong);background:var(--card);color:var(--ink-soft);border-radius:2px;cursor:pointer;}
+  .togglebtn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  .plan{border-left:3px solid var(--rule-strong);padding-left:16px;margin-bottom:20px;}
+  .plan h3{font-family:var(--serif);font-size:15px;margin:0 0 8px;}
+  .plan ol{margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;}
+  .plan ol li{margin-bottom:6px;}
+  .plan.now{border-left-color:var(--accent);}
+  #panel-plan{max-width:820px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <h1>Grandway Co.</h1>
+      <p>Performance review — clients, service lines &amp; staff · FY2026 year to date</p>
+    </div>
+    <div class="stamp">Compiled from job &amp; timesheet<br>records · figures approximate</div>
+  </div>
+
+  <div class="kpirow">
+    <div class="kpi"><div class="lbl">Total quoted revenue</div><div class="val">RM276,650</div></div>
+    <div class="kpi"><div class="lbl">Total staff time cost</div><div class="val">RM87,775</div></div>
+    <div class="kpi"><div class="lbl">Net profit</div><div class="val pos">RM188,875</div></div>
+    <div class="kpi"><div class="lbl">Blended margin</div><div class="val pos">68.3%</div><div class="sub">optimistic — see notes</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="clients">Clients</button>
+    <button class="tab" data-tab="lines">Service lines</button>
+    <button class="tab" data-tab="staff">Staff</button>
+    <button class="tab" data-tab="plan">Action plan</button>
+  </div>
+
+  <div class="panel active" id="panel-overview">
+    <h2 class="section">Where the profit sits</h2>
+    <p class="deck">Profit by service line, sorted highest to lowest. Statutory Audit carries the firm.</p>
+    <div class="split">
+      <div class="col-main">
+        <div class="card"><div class="chartwrap" style="height:320px;"><canvas id="chartOverview" role="img" aria-label="Bar chart of profit by service line: Statutory Audit RM144,315, Company Incorporation and Advisory RM27,500, Monthly Bookkeeping RM10,450, Corporate Income Tax Filing RM6,240, Annual Return Filing RM680, Personal Income Tax Filing minus RM310.">Profit by service line — see table on Service lines tab for exact figures.</canvas></div></div>
+      </div>
+      <div class="col-side">
+        <div class="callout">
+          <b>2 clients and 1 service line are running at a loss.</b> Lion City Retail Ventures (–RM7,000) and Tan Wei Ming (–RM310) cost more in staff time than they bill. Personal Income Tax Filing as a service line sits at –88.6% margin — same root cause: small jobs priced below the time they actually take.
+        </div>
+
+        <div class="card">
+          <h2 class="section" style="font-size:15px;">Quick reads</h2>
+          <ul style="font-size:13.5px;line-height:1.8;margin:8px 0 0;padding-left:18px;">
+            <li>Statutory Audit is 83% of revenue and 76% of profit — a strength, but a concentration risk.</li>
+            <li>Sarah Lim earns more per hour (RM357.51) than Partner David Tan (RM314.09) once you value hours at each job's actual billing rate — she's staffed on high-fee, low-hour engagements.</li>
+            <li>8 quoted jobs worth ~RM60K+ have zero logged timesheet hours — no cost visibility into them yet.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-clients">
+    <h2 class="section">Profit and loss by client</h2>
+    <p class="deck">Estimated fee vs. actual staff time cost logged this year.</p>
+    <div class="split">
+      <div class="col-main">
+        <div class="card"><div class="chartwrap" style="height:340px;"><canvas id="chartClients" role="img" aria-label="Horizontal bar chart of profit by client, ranging from Lion City Property Holdings at RM29,250 down to Lion City Retail Ventures at minus RM7,000.">See table below for exact client profit figures.</canvas></div></div>
+
+        <div class="card">
+          <table>
+            <thead><tr><th>Client</th><th class="num">Est. fee</th><th class="num">Time cost</th><th class="num">Profit</th><th>Status</th></tr></thead>
+            <tbody id="clientTableBody"></tbody>
+          </table>
+          <p class="note">8 clients (Coastal Builders, Skyline Renovation, GreenLeaf F&amp;B, Vertex Advisory Partners, Sunrise Bakery &amp; Cafe, Bright Consultancy Group, Meridian Freight Forwarders, Oceanview Marine Supplies) have no timesheet hours logged yet — can't assess profitability. Listed at the bottom of the table.</p>
+        </div>
+      </div>
+      <div class="col-side">
+    <div class="insight">
+      <div class="lbl">Actionable insight</div>
+      <ul>
+        <li>Your top 4 clients by profit (Lion City Property Holdings, BuildRight Construction, Apex Manufacturing, Precision Engineering Works) each clear over RM14,000 — worth protecting these relationships and checking if similar-sized prospects can be won.</li>
+        <li><b>Lion City Retail Ventures</b> and <b>Tan Wei Ming</b> are costing more to service than they pay — renegotiate the fee or cap the hours on both before the next renewal.</li>
+        <li>The <b>Tan Wei Ming</b> loss traces to one PIC, <b>Priya Nair</b>, logging 11 hours (RM660) against a RM350 fee — breakeven was 5.83 hours. Flag with her directly: either the fee needs raising for this filing type, or the job is taking longer than it should.</li>
+        <li>The 8 clients with no logged hours are a blind spot, not necessarily a problem — get timesheets recorded on them so the next review can actually tell if they're profitable.</li>
+      </ul>
+    </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-lines">
+    <h2 class="section">Profitability by service line</h2>
+    <p class="deck">Revenue and staff cost grouped by the type of work performed.</p>
+    <div class="split">
+      <div class="col-main">
+        <div class="card"><div class="chartwrap" style="height:300px;"><canvas id="chartLines" role="img" aria-label="Grouped bar chart of revenue versus staff cost for six service lines: Statutory Audit, Company Incorporation and Advisory, Monthly Bookkeeping, Corporate Income Tax Filing, Annual Return Filing, and Personal Income Tax Filing.">See table below for exact revenue, cost and margin per service line.</canvas></div></div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Service line</th><th class="num">Revenue</th><th class="num">Cost</th><th class="num">Profit</th><th class="num">Margin</th></tr></thead>
+            <tbody id="lineTableBody"></tbody>
+          </table>
+          <p class="note">Company Incorporation &amp; Advisory shows 100% margin because none of its 4 jobs have logged staff hours yet — treat that figure as unmeasured, not truly costless.</p>
+        </div>
+      </div>
+      <div class="col-side">
+    <div class="insight">
+      <div class="lbl">Actionable insight</div>
+      <ul>
+        <li><b>Statutory Audit</b> is the firm's main profit engine (RM144,315, 63% margin) — protect its staffing and pricing, but don't let the firm rely on it alone.</li>
+        <li><b>Personal Income Tax Filing</b> is the only line losing money (–88.6% margin) — either raise the fee for small personal filings or route them to a lower-cost junior instead of a Tax Executive.</li>
+        <li>The only job on this line (Tan Wei Ming, PIC <b>Priya Nair</b>) took 11 hours against a 5.83-hour breakeven at her RM60/hr rate — set an hours cap or fee floor on future Form B/B1 filings so a single filing can't run this far past breakeven.</li>
+        <li>Get timesheets logged against <b>Company Incorporation &amp; Advisory</b> jobs — its 100% margin is unverified, and you need real cost data before treating it as a genuinely high-margin line to grow.</li>
+      </ul>
+    </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-staff">
+    <h2 class="section">Staff earnings — two ways of measuring</h2>
+    <p class="deck">Toggle between valuing each person's hours at their own position rate, versus at the actual billing rate of the specific jobs they worked on.</p>
+    <div class="split">
+      <div class="col-main">
+        <div class="togglebar">
+          <button class="togglebtn active" data-basis="position">Position-rate basis</button>
+          <button class="togglebtn" data-basis="job">Job-rate basis</button>
+        </div>
+        <div class="card"><div class="chartwrap" style="height:300px;"><canvas id="chartStaff" role="img" aria-label="Bar chart of staff earnings, toggle-able between position rate basis and job rate basis.">See table below for exact staff earnings under each basis.</canvas></div></div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Staff</th><th class="num">Hours</th><th class="num">Position rate</th><th class="num">Position-rate earn</th><th class="num">Job-rate earn</th><th class="num">Job-rate RM/hr</th></tr></thead>
+            <tbody id="staffTableBody"></tbody>
+          </table>
+          <p class="note">Sarah Lim's job-rate RM/hr (357.51) exceeds even the Partner's (314.09) — she's staffed on high-fee, lower-hour engagements like BuildRight Construction and Apex Manufacturing. Figures are approximate, hand-matched from ~108 of 116 timesheet rows.</p>
+        </div>
+      </div>
+      <div class="col-side">
+    <div class="insight">
+      <div class="lbl">Actionable insight</div>
+      <ul>
+        <li><b>Job-rate above position rate is expected, not a red flag</b> — it means the jobs someone's staffed on bill out above their own cost, which is true for everyone here. The real warning sign is the opposite: a specific job whose rate falls <b>at or below</b> a person's position rate, like Priya Nair's Tan Wei Ming job (RM31.82/hr effective vs her RM60/hr cost) — that's an active loss on that assignment, not just low margin.</li>
+        <li><b>Sarah Lim's staffing pattern is worth replicating</b> — she generates the highest RM/hr of anyone, including the Partner, because she's placed on high-fee, lower-hour jobs. Consider whether other managers can be staffed the same way.</li>
+        <li><b>The ranking flips once you switch basis:</b> on position-rate, David Tan earns the most (RM42,500); on job-rate, <b>Sarah Lim overtakes him</b> (RM56,487 vs RM53,395) even though she logged fewer hours. Which jobs someone is staffed on matters more than their title.</li>
+        <li><b>Marcus Ong's job-rate earnings (RM21,364) run ~4.7x his position-rate earnings (RM4,550)</b> — the jobs he's on bill out well above his RM35/hr cost rate, making him a strong margin contributor. Consider giving him more hours on similar jobs.</li>
+        <li><b>Wei Jie Koh carries the most hours (249) at the lowest RM/hr (203.83)</b> — he may be absorbing too much low-margin, high-volume work. Review whether some of his workload can shift to higher-value engagements.</li>
+        <li><b>Priya Nair and Nurul Ain Hassan logged only ~27 hours each</b> all year — check whether that reflects their role scope or spare capacity that could take on more billable work.</li>
+      </ul>
+    </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-plan">
+    <h2 class="section">What to do next</h2>
+    <div class="plan now">
+      <h3>Quick wins — this month</h3>
+      <ol>
+        <li>Re-price or cap hours on small compliance filings like the Tan Wei Ming personal tax job — either raise the fee or delegate to a lower-cost junior.</li>
+        <li>Review the Lion City Retail Ventures engagement to find out why it's running over budget before renewal.</li>
+        <li>Chase timesheet logging on the 8 jobs with zero recorded hours — right now there's no cost visibility into ~RM60K of quoted fees.</li>
+      </ol>
+    </div>
+    <div class="plan">
+      <h3>Medium term</h3>
+      <ol>
+        <li>Start populating "Actual Fee" and confirmed "Revenue" fields as jobs are invoiced, so future analysis reflects real billing instead of estimates.</li>
+        <li>Deliberately grow Company Incorporation &amp; Advisory and Bookkeeping — both show strong margins once properly measured, reducing reliance on Statutory Audit alone.</li>
+        <li>Rebalance staffing — shift some of Wei Jie Koh's hour-heavy, lower-margin load toward higher-value engagements, and check whether Priya Nair and Nurul Ain Hassan have spare capacity for more billable work.</li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const INK='#1C2B39', PROFIT='#2F6B4F', LOSS='#A63D33', MUTED='#8A8672', GRID='#DCD7C6', BRASS='#8C6D2F', COST='#B9B098';
+
+Chart.defaults.font.family = "'JetBrains Mono','SF Mono',Consolas,monospace";
+Chart.defaults.color = '#4A5A6B';
+
+function fmt(v){ return 'RM' + Math.round(v).toLocaleString(); }
+function fmtSigned(v){ v=Math.round(v); return (v<0?'-':'') + 'RM' + Math.abs(v).toLocaleString(); }
+
+// ---------- CLIENTS DATA ----------
+const clients = [
+  ["Lion City Property Holdings",35500,6250],
+  ["BuildRight Construction",25200,3000],
+  ["Apex Manufacturing",25000,4560],
+  ["Precision Engineering Works",23000,8350],
+  ["Harbourfront Trading Co",13500,2100],
+  ["Swift Logistics Solutions",15600,4860],
+  ["Golden Harvest Trading",12800,4005],
+  ["Quantum Electronics Manufacturing",44000,36030],
+  ["Marina Bay Culinary Concepts",10500,3690],
+  ["TechNova Solutions",3900,850],
+  ["Lion City Retail Ventures",14500,21500],
+  ["Tan Wei Ming",350,660],
+].map(([n,fee,cost])=>({name:n,fee,cost,profit:fee-cost})).sort((a,b)=>b.profit-a.profit);
+
+const noDataClients = [
+  ["Coastal Builders",8500],["Skyline Renovation & Construction",9000],["GreenLeaf F&B",7000],
+  ["Vertex Advisory Partners LLP",2800],["Sunrise Bakery & Cafe",1200],["Bright Consultancy Group",1800],
+  ["Meridian Freight Forwarders",11500],["Oceanview Marine Supplies",11000]
+];
+
+// ---------- SERVICE LINES DATA ----------
+const lines = [
+  ["Statutory Audit",229000,84685],
+  ["Company Incorporation & Advisory",27500,0],
+  ["Monthly Bookkeeping",11800,1350],
+  ["Corporate Income Tax Filing",7200,960],
+  ["Annual Return Filing",800,120],
+  ["Personal Income Tax Filing",350,660],
+].map(([n,rev,cost])=>({name:n,rev,cost,profit:rev-cost,margin:(rev-cost)/rev*100}));
+
+// ---------- STAFF DATA ----------
+const staff = [
+  {name:"David Tan",hours:170,posRate:250,posEarn:42500,jobEarn:53395,jobRate:314.09},
+  {name:"Sarah Lim",hours:158,posRate:120,posEarn:18960,jobEarn:56487,jobRate:357.51},
+  {name:"Wei Jie Koh",hours:249,posRate:75,posEarn:18675,jobEarn:50754,jobRate:203.83},
+  {name:"Marcus Ong",hours:130,posRate:35,posEarn:4550,jobEarn:21364,jobRate:164.34},
+  {name:"Priya Nair",hours:27,posRate:60,posEarn:1620,jobEarn:6050,jobRate:224.07},
+  {name:"Nurul Ain Hassan",hours:27,posRate:50,posEarn:1350,jobEarn:6000,jobRate:222.22},
+  {name:"Grace Chua",hours:4,posRate:30,posEarn:120,jobEarn:800,jobRate:200.00},
+];
+
+// ---------- OVERVIEW CHART ----------
+new Chart(document.getElementById('chartOverview'), {
+  type:'bar',
+  data:{
+    labels: lines.map(l=>l.name).sort((a,b)=> (lines.find(x=>x.name===b).profit)-(lines.find(x=>x.name===a).profit)),
+    datasets:[{
+      data: [...lines].sort((a,b)=>b.profit-a.profit).map(l=>l.profit),
+      backgroundColor: [...lines].sort((a,b)=>b.profit-a.profit).map(l=> l.profit>=0? PROFIT: LOSS),
+      borderRadius:4, maxBarThickness:26
+    }]
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>fmtSigned(ctx.raw)}}},
+    scales:{
+      x:{grid:{color:GRID}, ticks:{callback:(v)=>fmt(v)}},
+      y:{grid:{display:false}}
+    }
+  }
+});
+
+// ---------- CLIENTS CHART ----------
+new Chart(document.getElementById('chartClients'), {
+  type:'bar',
+  data:{
+    labels: clients.map(c=>c.name),
+    datasets:[{ data: clients.map(c=>c.profit), backgroundColor: clients.map(c=>c.profit>=0?PROFIT:LOSS), borderRadius:4, maxBarThickness:18 }]
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>fmtSigned(ctx.raw)}}},
+    scales:{ x:{grid:{color:GRID}, ticks:{callback:(v)=>fmt(v)}}, y:{grid:{display:false}, ticks:{font:{family:"-apple-system,Helvetica,Arial,sans-serif", size:11}}} }
+  }
+});
+
+// ---------- SERVICE LINES CHART ----------
+new Chart(document.getElementById('chartLines'), {
+  type:'bar',
+  data:{
+    labels: lines.map(l=>l.name),
+    datasets:[
+      {label:'Revenue', data: lines.map(l=>l.rev), backgroundColor:'#2a78d6', borderRadius:4, maxBarThickness:22},
+      {label:'Staff cost', data: lines.map(l=>l.cost), backgroundColor:COST, borderRadius:4, maxBarThickness:22}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:(ctx)=>ctx.dataset.label+': '+fmt(ctx.raw)}}
+    },
+    scales:{
+      x:{grid:{display:false}, ticks:{font:{family:"-apple-system,Helvetica,Arial,sans-serif", size:10.5}, maxRotation:20, minRotation:20}},
+      y:{grid:{color:GRID}, ticks:{callback:(v)=>fmt(v)}}
+    }
+  }
+});
+document.querySelector('#panel-lines .card').insertAdjacentHTML('afterbegin',
+  '<div style="display:flex;gap:16px;margin-bottom:10px;font-size:12px;color:var(--ink-soft);">' +
+  '<span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#2a78d6;display:inline-block;"></span>Revenue</span>' +
+  '<span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:'+COST+';display:inline-block;"></span>Staff cost</span></div>');
+
+// ---------- STAFF CHART (toggle) ----------
+let staffSorted = [...staff].sort((a,b)=>b.posEarn-a.posEarn);
+const staffChart = new Chart(document.getElementById('chartStaff'), {
+  type:'bar',
+  data:{
+    labels: staffSorted.map(s=>s.name),
+    datasets:[{ data: staffSorted.map(s=>s.posEarn), backgroundColor:'#2a78d6', borderRadius:4, maxBarThickness:26 }]
+  },
+  options:{
+    indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:(ctx)=>fmt(ctx.raw)}}},
+    scales:{ x:{grid:{color:GRID}, ticks:{callback:(v)=>fmt(v)}}, y:{grid:{display:false}} }
+  }
+});
+
+document.querySelectorAll('.togglebtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.togglebtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const basis = btn.dataset.basis;
+    const key = basis==='position' ? 'posEarn' : 'jobEarn';
+    const sorted = [...staff].sort((a,b)=>b[key]-a[key]);
+    staffChart.data.labels = sorted.map(s=>s.name);
+    staffChart.data.datasets[0].data = sorted.map(s=>s[key]);
+    staffChart.data.datasets[0].backgroundColor = basis==='position' ? '#2a78d6' : BRASS;
+    staffChart.update();
+  });
+});
+
+// ---------- TABLES ----------
+const clientBody = document.getElementById('clientTableBody');
+clients.forEach(c=>{
+  const badge = c.profit>=0 ? `<span class="badge profit">Profitable</span>` : `<span class="badge loss">Loss-making</span>`;
+  clientBody.insertAdjacentHTML('beforeend',
+    `<tr><td>${c.name}</td><td class="num">${fmt(c.fee)}</td><td class="num">${fmt(c.cost)}</td><td class="num ${c.profit>=0?'pos':'neg'}">${fmtSigned(c.profit)}</td><td>${badge}</td></tr>`);
+});
+noDataClients.forEach(([name,fee])=>{
+  clientBody.insertAdjacentHTML('beforeend',
+    `<tr class="nodata"><td>${name}</td><td class="num">${fmt(fee)}</td><td class="num">—</td><td class="num">—</td><td><span class="badge flag">No hours logged</span></td></tr>`);
+});
+
+const lineBody = document.getElementById('lineTableBody');
+lines.forEach(l=>{
+  const flag = l.name.includes('Advisory') ? ' <span class="badge flag">unmeasured</span>' : '';
+  const badge = l.profit>=0 ? `<span class="badge profit">${l.margin.toFixed(1)}%</span>` : `<span class="badge loss">${l.margin.toFixed(1)}%</span>`;
+  lineBody.insertAdjacentHTML('beforeend',
+    `<tr><td>${l.name}${flag}</td><td class="num">${fmt(l.rev)}</td><td class="num">${fmt(l.cost)}</td><td class="num ${l.profit>=0?'pos':'neg'}">${fmtSigned(l.profit)}</td><td class="num">${badge}</td></tr>`);
+});
+
+const staffBody = document.getElementById('staffTableBody');
+[...staff].sort((a,b)=>b.jobRate-a.jobRate).forEach(s=>{
+  staffBody.insertAdjacentHTML('beforeend',
+    `<tr><td>${s.name}</td><td class="num">${s.hours}</td><td class="num">RM${s.posRate}/hr</td><td class="num">${fmt(s.posEarn)}</td><td class="num">${fmt(s.jobEarn)}</td><td class="num">RM${s.jobRate.toFixed(2)}</td></tr>`);
+});
+
+// ---------- TAB SWITCHING ----------
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
