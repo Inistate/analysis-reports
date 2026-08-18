@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACL Components Pte Ltd — Design Change Request Insights</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --page-plane:     #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --success-text:   #2f6b34;
+
+    --series-1: #1D6693; /* muted blue   - Admin */
+    --series-2: #C2703D; /* muted clay   - Examiner */
+    --series-3: #0E8E78; /* muted teal   - Approver */
+    --series-4: #B8862B; /* muted gold   - QA Approver */
+
+    --seq-100: #D6E4EE; --seq-200: #AFC9DC; --seq-300: #86AFC9; --seq-400: #5C93B3; --seq-500: #1D6693;
+
+    --good: #4F8F55;
+    --warning: #C79A3E;
+    --serious: #C15C5C;
+    --critical: #A83E3E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --page-plane:     #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --success-text:   #8ec793;
+
+      --series-1: #4C8FC4;
+      --series-2: #C97D4C;
+      --series-3: #2F9C83;
+      --series-4: #B08429;
+
+      --seq-100: #1F3A52; --seq-200: #2E5678; --seq-300: #3E7299; --seq-400: #4C8FC4; --seq-500: #7BB3DE;
+
+      --good: #6BAF71;
+      --warning: #D9B65C;
+      --serious: #D67F7F;
+      --critical: #D96A6A;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page-plane:     #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --success-text:   #8ec793;
+
+    --series-1: #4C8FC4;
+    --series-2: #C97D4C;
+    --series-3: #2F9C83;
+    --series-4: #B08429;
+
+    --seq-100: #1F3A52; --seq-200: #2E5678; --seq-300: #3E7299; --seq-400: #4C8FC4; --seq-500: #7BB3DE;
+
+    --good: #6BAF71;
+    --warning: #D9B65C;
+    --serious: #D67F7F;
+    --critical: #D96A6A;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page-plane);
+    color: var(--text-primary);
+  }
+  .viz-root { background: var(--page-plane); color: var(--text-primary); }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  header.page-head { margin-bottom: 32px; }
+  header.page-head h1 { font-size: 28px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.01em; }
+  header.page-head .subtitle { font-size: 15px; color: var(--text-secondary); margin: 0 0 10px; }
+  header.page-head .meta { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  .theme-toggle {
+    position: fixed; top: 16px; right: 16px; z-index: 50;
+    font-size: 12px; color: var(--text-secondary);
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 12px; cursor: pointer; user-select: none;
+  }
+
+  section.dcr-section { margin: 0 0 52px; padding-top: 28px; border-top: 1px solid var(--gridline); }
+  section.dcr-section:first-of-type { border-top: none; padding-top: 0; }
+
+  h2.section-title { font-size: 20px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.01em; }
+  p.section-sub { font-size: 14px; color: var(--text-secondary); margin: 0 0 20px; max-width: 760px; line-height: 1.5; }
+  .note { font-size: 12.5px; color: var(--text-muted); margin: 10px 0 0; line-height: 1.5; }
+
+  /* ---- Highlights grid ---- */
+  .highlights { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  @media (max-width: 900px) { .highlights { grid-template-columns: repeat(2, 1fr); } }
+  .hl-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px 14px; position: relative; overflow: hidden; }
+  .hl-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); }
+  .hl-card.good { --accent: var(--good); }
+  .hl-card.warning { --accent: var(--warning); }
+  .hl-card.critical { --accent: var(--critical); }
+  .hl-rank { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .hl-value { font-size: 26px; font-weight: 700; line-height: 1.1; margin-bottom: 4px; font-variant-numeric: proportional-nums; }
+  .hl-value .unit { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+  .hl-label { font-size: 12.5px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+  .hl-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+
+  /* ---- Evidence / action boxes ---- */
+  .evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  @media (max-width: 800px) { .evidence-grid { grid-template-columns: 1fr; } }
+  .ebox { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; border-left: 3px solid var(--text-muted); }
+  .ebox.action { border-left-color: var(--series-1); }
+  .ebox .eb-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+  .ebox.action .eb-label { color: var(--series-1); }
+  .ebox p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.55; margin: 0; }
+  .ebox p b { color: var(--text-primary); }
+
+  /* ---- big stat callout ---- */
+  .stat-row { display: flex; gap: 32px; align-items: baseline; flex-wrap: wrap; margin-bottom: 4px; }
+  .stat-big { font-size: 46px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat-big .unit { font-size: 20px; font-weight: 700; color: var(--text-secondary); margin-left: 2px; }
+  .stat-sub { font-size: 13.5px; color: var(--text-secondary); max-width: 620px; line-height: 1.5; }
+  .stat-big.good { color: var(--good); }
+  .stat-big.critical { color: var(--critical); }
+  .stat-big.warning { color: #8a6100; }
+  :root[data-theme="dark"] .stat-big.warning, @media (prefers-color-scheme: dark) { .stat-big.warning { color: var(--warning); } }
+
+  /* ---- concern callout ---- */
+  .concern-card { background: var(--surface-1); border: 1px solid var(--border); border-left: 4px solid var(--critical); border-radius: 10px; padding: 20px 22px; }
+  .concern-card .cc-tag { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--critical); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .concern-card p { font-size: 14.5px; line-height: 1.6; color: var(--text-secondary); margin: 0 0 10px; }
+  .concern-card p:last-child { margin-bottom: 0; }
+  .concern-card b { color: var(--text-primary); }
+
+  /* ---- Bar chart (horizontal) ---- */
+  .barchart { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: 168px 1fr 62px; align-items: center; gap: 10px; }
+  .bar-row .bar-label { font-size: 13px; color: var(--text-primary); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { position: relative; height: 20px; background: transparent; border-bottom: 1px solid var(--gridline); }
+  .bar-fill { position: absolute; left: 0; top: 2px; height: 16px; border-radius: 4px; background: var(--bar-color, var(--series-1)); transition: width .2s ease; }
+  .bar-row .bar-value { font-size: 12.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .bar-fill[title]:hover { filter: brightness(1.08); cursor: default; }
+  .barchart.narrow .bar-row { grid-template-columns: 190px 1fr 68px; }
+  .barchart.narrow .bar-label { white-space: normal; overflow: visible; text-overflow: unset; font-size: 12px; line-height: 1.3; }
+
+  /* ---- Split bar (rejected vs cancelled, stacked by type) ---- */
+  .split-bar-row { display: grid; grid-template-columns: 190px 1fr 100px; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .split-bar-row:last-child { margin-bottom: 0; }
+  .split-label { font-size: 12px; color: var(--text-primary); text-align: right; line-height: 1.3; }
+  .split-track { position: relative; height: 20px; border-bottom: 1px solid var(--gridline); display: flex; align-items: flex-start; }
+  .split-seg { height: 16px; margin-top: 2px; }
+  .split-seg.rejected { background: var(--critical); border-radius: 4px 0 0 4px; }
+  .split-seg.cancelled { background: var(--text-muted); border-radius: 0 4px 4px 0; margin-left: 2px; }
+  .split-seg[title]:hover { filter: brightness(1.12); cursor: default; }
+  .split-value { font-size: 12.5px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .split-value .sv-total { display: block; }
+  .split-value .sv-detail { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ---- Role-grouped reason breakdown ---- */
+  .role-reason-group { margin-bottom: 16px; }
+  .role-reason-group:last-child { margin-bottom: 0; }
+  .rr-role-label { font-size: 12.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 7px; }
+  .rr-role-label .rr-role-count { font-weight: 500; color: var(--text-muted); margin-left: 4px; }
+
+  /* ---- Lollipop variant (rate/percentage metrics) ---- */
+  .lollipop-line { position: absolute; left: 0; top: 9px; height: 2px; border-radius: 1px; background: var(--bar-color, var(--series-1)); }
+  .lollipop-dot { position: absolute; top: 4px; width: 12px; height: 12px; border-radius: 50%; transform: translateX(-50%); background: var(--bar-color, var(--series-1)); border: 2px solid var(--surface-1); cursor: default; }
+  .lollipop-dot:hover { filter: brightness(1.12); }
+
+  /* legend (kept for other sections/reference) */
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 14px 0 4px; font-size: 12.5px; color: var(--text-secondary); }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  /* grouped workload chart */
+  .workload-person { margin-bottom: 22px; }
+  .workload-person .wp-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .workload-person .wp-head .name { font-size: 14px; font-weight: 700; }
+  .workload-person .wp-head .total { font-size: 12.5px; color: var(--text-muted); }
+  .wp-bars { display: flex; height: 22px; border-radius: 5px; overflow: hidden; border: 1px solid var(--border); }
+  .wp-seg { height: 100%; position: relative; }
+  .wp-seg:not(:last-child) { border-right: 2px solid var(--surface-1); }
+  .wp-seg[title]:hover { filter: brightness(1.1); }
+
+  /* ---- Donut chart ---- */
+  .donut-wrap { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .donut-center-label { text-align: center; }
+  .donut-center-label .dc-num { font-size: 22px; font-weight: 800; }
+  .donut-center-label .dc-unit { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .donut-legend { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+  .donut-legend .dl-row { display: flex; align-items: center; gap: 8px; }
+  .donut-legend .dl-swatch { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+  .donut-legend .dl-name { color: var(--text-primary); min-width: 150px; }
+  .donut-legend .dl-val { color: var(--text-secondary); font-variant-numeric: tabular-nums; margin-left: auto; }
+
+  /* ---- Tornado (diverging) chart ---- */
+  .tornado-head { display: grid; grid-template-columns: 1fr 90px 1fr; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 10px; }
+  .tornado-head .th-left { text-align: right; }
+  .tornado-head .th-right { text-align: left; }
+  .tornado-head .th-mid { text-align: center; }
+  .tornado-row { display: grid; grid-template-columns: 1fr 90px 1fr; align-items: center; gap: 0; margin-bottom: 12px; }
+  .tornado-left { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+  .tornado-right { display: flex; align-items: center; gap: 8px; }
+  .tornado-bar { height: 16px; }
+  .tornado-left .tornado-bar { border-radius: 4px 0 0 4px; }
+  .tornado-right .tornado-bar { border-radius: 0 4px 4px 0; }
+  .tornado-mid { text-align: center; font-size: 13px; font-weight: 700; border-left: 1px solid var(--gridline); border-right: 1px solid var(--gridline); padding: 0 4px; }
+  .tornado-val { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ---- Gauge (radial) ---- */
+  .gauge-row { display: grid; grid-template-columns: repeat(2, max-content); gap: 20px 28px; }
+  .gauge-item { text-align: center; }
+  .gauge-item svg { display: block; }
+  .gauge-label { font-size: 13px; font-weight: 600; margin-top: 6px; color: var(--text-primary); }
+  .gauge-sub { font-size: 11.5px; color: var(--text-muted); }
+
+  /* ---- Line chart ---- */
+  .linechart-wrap svg { width: 100%; height: auto; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; }
+  @media (max-width: 1000px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ---- Recommendations ---- */
+  .reco-list { display: flex; flex-direction: column; gap: 12px; }
+  .reco-item { display: grid; grid-template-columns: 34px 1fr; gap: 14px; background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .reco-num { width: 26px; height: 26px; border-radius: 50%; background: var(--series-1); color: #fff; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .reco-item.priority .reco-num { background: var(--critical); }
+  .reco-title { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+  .reco-body { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+  .reco-body b { color: var(--text-primary); }
+
+  footer.page-foot { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--gridline); font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="viz-root" id="vizRoot">
+  <button class="theme-toggle" id="themeToggle" type="button">🌓 Toggle theme</button>
+  <div class="wrap">
+
+    <header class="page-head">
+      <h1>ACL Components Pte Ltd — Design Change Request Insights</h1>
+      <p class="subtitle">Design Change Request (DCR) approval pipeline &nbsp;·&nbsp; Data as of 2026-08-12</p>
+      <p class="meta">Organized by theme — pipeline health, workload, risk drivers, timing, and trend — each section pairs the analysis and insight behind the numbers with a concrete next step.</p>
+    </header>
+
+    <!-- Top 5 Highlights -->
+    <section class="dcr-section">
+      <h2 class="section-title">Top 5 Highlights</h2>
+      <p class="section-sub">The headline signals from the current 198-entry dataset — what's healthy, what's worth watching, and what needs a fix right now.</p>
+      <div class="highlights">
+        <div class="hl-card good">
+          <div class="hl-rank">#1 · Health</div>
+          <div class="hl-value">58.6<span class="unit">%</span></div>
+          <div class="hl-label">Closed (116 of 198)</div>
+          <div class="hl-desc">Well over half of all requests have completed the full four-stage approval chain end to end.</div>
+        </div>
+        <div class="hl-card warning">
+          <div class="hl-rank">#2 · Attrition</div>
+          <div class="hl-value">23.2<span class="unit">%</span></div>
+          <div class="hl-label">Rejected + cancelled (46 of 198)</div>
+          <div class="hl-desc">29 rejected, 17 cancelled. Up from 20.3% earlier in the dataset — worth tracking as a trend, not just a snapshot.</div>
+        </div>
+        <div class="hl-card critical">
+          <div class="hl-rank">#3 · Bottleneck</div>
+          <div class="hl-value">15<span class="unit">&nbsp;open</span></div>
+          <div class="hl-label">Sitting at Pending Examiner</div>
+          <div class="hl-desc">41.7% of all 36 currently-open requests (15 of 36) are stuck at one single stage.</div>
+        </div>
+        <div class="hl-card warning">
+          <div class="hl-rank">#4 · Category risk</div>
+          <div class="hl-value">32.0<span class="unit">%</span></div>
+          <div class="hl-label">Electronics, PCB & Sensors non-completion</div>
+          <div class="hl-desc">Highest failure rate of any category on a meaningful sample (8 of 25) — this one is a real action-item, not just a watch-item.</div>
+        </div>
+        <div class="hl-card critical">
+          <div class="hl-rank">#5 · Overdue</div>
+          <div class="hl-value">2<span class="unit">&nbsp;entries</span></div>
+          <div class="hl-label">39 and 1 days past due</div>
+          <div class="hl-desc">Both currently sit with Tan — one at Examiner (39 days), one at Admin (1 day) — the same person flagged in the bottleneck above.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right now callout -->
+    <section class="dcr-section">
+      <h2 class="section-title">Right Now: What Needs Attention</h2>
+      <div class="concern-card">
+        <div class="cc-tag">Concentrated, currently-active risk</div>
+        <p>The Examiner stage is the largest bottleneck in the pipeline — <b>15 of 36 open requests (41.7%)</b> are stuck there. Within that queue, it isn't evenly spread: <b>Tan personally holds 6 of those 15 (40.0%)</b> — the most of any reviewer. Tan is also the reviewer of record on <b>both</b> of the module's currently-overdue items, one at Examiner (39 days) and one at Admin (1 day).</p>
+        <p>No other single person or stage combination carries this much concentrated, active exposure right now. If Tan is out or falls further behind, the largest queue in the whole pipeline has no backup.</p>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>The bottleneck and the overdue items aren't two separate problems — they're the same one. Both of the overdue requests and the Examiner-stage backlog sit with Tan, and Tan is carrying 40.0% of the current open Examiner queue against a 30.1% historical share of Examiner-stage work — meaningfully overloaded relative to his usual pace, not just unlucky timing. Fixing the queue distribution is very likely what clears the overdue items too, rather than these needing two separate fixes.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>Rebalance part of Tan's Examiner queue to Rose or Lim now, before the 2 overdue items become more, and confirm Tan isn't blocked on something upstream that's causing the backlog.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How the review process works -->
+    <section class="dcr-section">
+      <h2 class="section-title">How the Review Process Actually Works</h2>
+      <p class="section-sub">Before drilling into any one number, the shape of the workflow itself: how many times a request gets reviewed, and whether a rejection is ever revisited.</p>
+      <div class="grid-3">
+        <div>
+          <div class="stat-row"><div class="stat-big">1<span class="unit">pass · 4 stages</span></div></div>
+          <p class="stat-sub">Admin → Examiner → Approver → QA Approver, in that order, exactly once. There is no "round 2" built into this workflow — a request either keeps moving forward or it terminates.</p>
+        </div>
+        <div>
+          <div class="stat-row"><div class="stat-big critical">29<span class="unit">of 198 rejected</span></div></div>
+          <p class="stat-sub">Once any stage rejects a request, it stays Rejected for good — there is no in-place revision path back to Pending Admin.</p>
+        </div>
+        <div>
+          <div class="stat-row"><div class="stat-big good">10<span class="unit">of 29 resubmitted</span></div></div>
+          <p class="stat-sub">10 of the 29 rejected requests were recreated as a brand-new DCR and linked back via the Resubmit For field — giving that design change a second full review cycle. Every one of those second-round reviews went on to close successfully.</p>
+        </div>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Every one of the 198 requests follows the same fixed 4-stage sequence with no revision loop back to an earlier stage — a rejected entry stays Rejected for good. That said, 10 of the 29 rejected requests (34.5%) were recreated as a brand-new DCR and given a second review cycle, and every one of those second-round reviews went on to close successfully. Reject reasons are now tracked by role too (see "Rejections by Stage &amp; Root Cause"), and they confirm why a full restart is the only option: Admin's rejections are pure paperwork gaps, while Examiner's and Approver's are genuine technical findings — neither can be patched in place under this workflow, only resolved and resubmitted from scratch.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>Because there's no partial-redo path — a rejected request can only be fixed by resubmitting a brand-new DCR from scratch — preventing the rejection in the first place is worth far more than any fix on the back end. Three levers now stand out: a mandatory-fields check at submission would eliminate Admin's 9 paperwork-gap rejections outright (see "Rejections by Stage &amp; Root Cause"), intake triage on high-risk Request Reasons would catch Examiner-level issues earlier (see "Does the Stated Reason Predict Rejection?"), and a design review checklist for Electronics, PCB &amp; Sensors and Structural, Housing &amp; Mounting would target the riskiest categories (see "Category Volume &amp; Category Risk").</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pipeline / Workflow State -->
+    <section class="dcr-section">
+      <h2 class="section-title">Pipeline &amp; Workflow State</h2>
+      <p class="section-sub">Where all 198 entries currently sit. The inner ring shows the terminal outcomes; the full ring shows every state including work still in progress.</p>
+      <div class="donut-wrap">
+        <div id="pipelineDonut"></div>
+        <div class="donut-legend" id="pipelineLegend"></div>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Pending Examiner (15) is over 1.6x the size of the next-largest open state (Pending Approver, 9) — the open backlog is concentrated at one specific stage rather than spread evenly across the four. That's actually the easier problem to have: a concentrated bottleneck is a targeted fix, not a sign the whole pipeline is running slow (see Workload Distribution below for exactly where within that stage it sits).</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>The fix here is about one person's queue, not the Examiner stage's process itself — see "Workload Distribution by Reviewer" below for exactly where that concentration sits.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workload Distribution -->
+    <section class="dcr-section">
+      <h2 class="section-title">Workload Distribution by Reviewer</h2>
+      <p class="section-sub">Every role assignment (Admin + Examiner + Approver + QA Approver) each person has been given across all 198 entries, regardless of whether that stage has been reached yet.</p>
+      <div id="workloadChart"></div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--series-1)"></span>Admin</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--series-2)"></span>Examiner</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--series-3)"></span>Approver</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--series-4)"></span>QA Approver</span>
+      </div>
+      <div class="barchart narrow" id="personBottleneckChart" style="margin-top:24px;"></div>
+      <p class="note">Of the 15 open Pending Examiner requests specifically, this is how they split by person.</p>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Total assignment volume looks balanced at a glance (Tan 182, Vitiyataran 178, Rose 177; Lim lower at 76, consistent with a newer or part-time reviewer). But the current Examiner backlog isn't distributed the same way volume is. Historically Tan has handled 50 of the 166 Examiner-stage assignments across the three main reviewers — 30.1%, roughly his fair share. Right now, though, Tan holds 6 of the 15 open Examiner-stage requests — 40.0%. That's a 10-point overrepresentation in the queue relative to his normal load, which is the more useful way to read the bottleneck than total volume: Tan isn't just busy, he's specifically over-assigned in the one stage that's currently backed up.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>This is a person problem inside one stage, not an overall-workload problem. Redistributing 2–3 of Tan's Examiner requests to Rose or Lim would relieve the bottleneck faster than any attempt to speed up the Examiner stage's process itself.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rejection/Cancellation Rate by Requestor -->
+    <section class="dcr-section">
+      <h2 class="section-title">Rejection &amp; Cancellation Rate by Requestor</h2>
+      <p class="section-sub">Of the requests each person submitted, what share ended in Rejected or Cancelled rather than Closed.</p>
+      <div id="requestorRateChart"></div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--critical)"></span>Rejected</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--text-muted)"></span>Cancelled</span>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Rejected and Cancelled are two different failure modes bundled into one rate here — Rejected is a reviewer's call, Cancelled is the requestor's own withdrawal — and splitting them by person tells a sharper story than the combined rate does. Rose's 15 (25.0%) breaks down to 9 rejected / 6 cancelled, and 6 of those 9 rejections (67%) were caught at Admin for paperwork gaps, not a technical failure — Rose's real issue is submission completeness, not design quality. Tan's rate runs the opposite way: of Tan's 8 rejections, 6 (75%) were genuine Examiner-stage technical findings. Vitiyataran holds 4 of the module's 6 total Approver-stage rejections — two-thirds of every late-stage failure in the report — meaning when Vitiyataran's design fails, it tends to fail expensive and late rather than early. Lim's 33.3% is on too small a sample (15 submissions) to read either way.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>Rose needs an intake completeness nudge — the same mandatory-fields fix as recommendation #2 — not closer design scrutiny. Tan's rejections reflect real technical misses worth a second pair of eyes before Examiner. Vitiyataran's failures are the most expensive to catch this late; worth an extra design review pass before Approver specifically for Vitiyataran's submissions, since that's exactly where the pattern concentrates.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Category Volume & Risk -->
+    <section class="dcr-section">
+      <h2 class="section-title">Category Volume &amp; Category Risk</h2>
+      <p class="section-sub">How much of the pipeline each category represents, and which categories carry the highest non-completion rate.</p>
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Volume by Category</h3>
+          <div class="barchart narrow" id="categoryVolumeChart"></div>
+        </div>
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Non-Completion Rate by Category</h3>
+          <div class="barchart narrow" id="categoryRiskChart"></div>
+        </div>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Rate and impact point to different categories. Electronics, PCB & Sensors has the highest non-completion <i>rate</i> (32.0%, 8 of 25) — the one that looks worst on a percentage basis. But Structural, Housing & Mounting, at a lower rate (27.0%), produces more actual failures: 10 versus Electronics' 8, because it runs nearly 1.5x the volume (37 vs. 25). If the goal is reducing the total number of failed DCRs rather than the worst percentage, Structural is the bigger lever, not Electronics. Fasteners & Hardware (30.8%, 4 of 13) and Bearings (15.4%, 2 of 13, safest) are both too low-volume to move the module's overall numbers much either way.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>Add an extra design check before Examiner specifically for Electronics, PCB & Sensors changes — it's both high-volume and now clearly high-risk. Structural, Housing & Mounting deserves the same treatment: it's the single biggest category by volume and is no longer a low-risk one.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Request Reason predicts rejection -->
+    <section class="dcr-section">
+      <h2 class="section-title">Does the Stated Reason Predict Rejection?</h2>
+      <p class="section-sub">Rejection rate by the Request Reason given at intake, across all 198 entries.</p>
+      <div class="barchart narrow" id="reasonRiskChart"></div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Yes — and the concentration is the real story, not just the individual rates. "Evaluation / analysis mismatch" (27.3%, 12/44) and "Miss to evaluate / analysis" (25.5%, 12/47) together make up only 46% of all 198 submissions by volume, yet they account for 24 of the module's 29 rejections — 82.8% of all rejection risk sitting inside less than half the intake volume. The other three reason codes combined (107 submissions, 54% of volume) produced only 5 rejections between them. The reason code isn't just predictive in relative-rate terms; it's where nearly all of the actual risk lives in absolute terms.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>Because 83% of rejection risk concentrates in just two intake reason codes, the triage rule doesn't need to touch the other 54% of volume at all — flag only "Evaluation mismatch" and "Miss to evaluate" submissions for a pre-Admin technical sanity check, and let the other three reason codes keep moving through the standard path untouched. That's a narrow, low-friction rule change, not a blanket policy.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rejections by Stage & Root Cause -->
+    <section class="dcr-section">
+      <h2 class="section-title">Rejections by Stage &amp; Root Cause</h2>
+      <p class="section-sub">Where in the pipeline rejections happen, and what reason was cited for each of the 29 rejected requests to date.</p>
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Rejections by Approval Stage</h3>
+          <div class="barchart narrow" id="rejectStageChart"></div>
+        </div>
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Rejection Reason by Approval Role</h3>
+          <div class="role-reason-group">
+            <div class="rr-role-label">Admin<span class="rr-role-count">9 rejections</span></div>
+            <div class="barchart narrow" id="rootCauseAdminChart"></div>
+          </div>
+          <div class="role-reason-group">
+            <div class="rr-role-label">Examiner<span class="rr-role-count">14 rejections</span></div>
+            <div class="barchart narrow" id="rootCauseExaminerChart"></div>
+          </div>
+          <div class="role-reason-group">
+            <div class="rr-role-label">Approver<span class="rr-role-count">6 rejections</span></div>
+            <div class="barchart narrow" id="rootCauseApproverChart"></div>
+          </div>
+        </div>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>"Test results don't match the evaluation" is the single largest failure mode overall — 9 of the 20 non-Admin rejections (45%), split across Examiner (6) and Approver (3) — meaning it isn't a one-time miss, it recurs at two independent gates, which points to a documentation/testing-process gap rather than any one reviewer's error. "New technical element not validated" is smaller but just as persistent (4 of 20, 20%), also spanning both Examiner and Approver — genuinely novel engineering risk that no single stage owns catching. And "test/evaluation not completed" (6 cases) never appears past Examiner: once a request clears that gate, nobody downstream re-checks whether the evaluation was actually done — a reasonable assumption right up until it isn't.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>The 45% mismatch rate recurring at two separate gates points upstream of any single reviewer: standardizing how evaluation data is captured and attached would let Admin's paperwork check catch inconsistent test data before Examiner ever sees it — turning today's 9 Admin-only completeness checks into a real first line of defense against the module's single biggest failure mode. Separately, "new technical element" cases (4, spanning two gates) may be worth a dedicated engineering sign-off step, since right now they're only caught as a side effect of Examiner's or Approver's normal review.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cycle Time & Overdue -->
+    <section class="dcr-section">
+      <h2 class="section-title">Cycle Time Distribution &amp; Overdue Requests</h2>
+      <p class="section-sub">How long a closed request takes end to end, and which currently-open requests have already blown past their due date.</p>
+      <div class="grid-2">
+        <div>
+          <div class="barchart narrow" id="cycleTimeChart"></div>
+        </div>
+        <div>
+          <div class="stat-row"><div class="stat-big critical">2<span class="unit">overdue right now</span></div></div>
+          <p class="stat-sub">Both sit with Tan: a Pending Examiner request 39 days past due, and a Pending Admin request 1 day past due.</p>
+        </div>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Of the 111 closed requests with complete date data, 77 (69.4%) closed in 3 days — the normal path is fast and dominant. The slower closed cases (14 at 6 days, 12 at 4 days) are still bounded and still finished; that's variance in a healthy process, not a failure. The 2 currently overdue requests are a different kind of problem entirely — one is 39 days past due, far outside even the slowest normal case above. A request that takes 6 days is slow; a request that sits for 39 days is stuck, and no amount of tolerating normal variance explains it. The two need different responses: normal spread doesn't need fixing, but a 39-day-overdue item needs someone to go look at it now.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>Because there's no partial-redo mechanism in this workflow, the only way to shorten delivery further is faster turnaround within a stage. The 2 overdue items should be escalated directly — both sit with the same person already flagged as the Examiner-stage bottleneck, and one has already crossed a month past due.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- On-Time Rate & Timing Buffer -->
+    <section class="dcr-section">
+      <h2 class="section-title">On-Time Rate by Personnel &amp; Approval Timing Buffer</h2>
+      <p class="section-sub">How often each reviewer's approvals land before the due date, and how much margin there typically is when they do.</p>
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">On-Time Rate by Reviewer</h3>
+          <div class="gauge-row" id="onTimeGauges"></div>
+        </div>
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Approval Timing Buffer</h3>
+          <div class="barchart narrow" id="timingBufferChart"></div>
+        </div>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>The four reviewers are within 1.2 points of each other (96.2%–97.4%) — Tan's on-time rate isn't meaningfully worse than anyone else's, despite Tan holding both of the module's currently-overdue items. That's a useful distinction: the overdue exposure flagged earlier is about queue volume and timing on two specific requests, not a chronic lateness pattern in how Tan works — which means the right fix is rebalancing the queue, not scrutinizing Tan's approval habits.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>The on-time rate is now more evenly spread across people than it used to be, which is good news — this is no longer a single-person problem. Worth setting internal due dates a day earlier than the formal deadline across the board, since even the best performer still has a handful of late approvals.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Overdue by Reviewer -->
+    <section class="dcr-section">
+      <h2 class="section-title">Overdue Approvals by Reviewer</h2>
+      <p class="section-sub">Who currently owns the requests that have already missed their due date.</p>
+      <div class="barchart narrow" id="overdueReviewerChart"></div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Because 100% of overdue exposure sits with one person on exactly two requests, resolving those two items — not a broader process change — would take current overdue risk in the entire module to zero. This is the cleanest, lowest-effort fix in this whole report: no other person carries any overdue exposure to address.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>These are the same 2 entries called out in "Right Now: What Needs Attention" — they don't need a new fix, they need the fix already proposed there to actually happen.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reassignment Audit -->
+    <section class="dcr-section">
+      <h2 class="section-title">Reassignment Audit</h2>
+      <p class="section-sub">20 requests were handed off to a different reviewer mid-review before the original assignee completed them. This shows who ended up completing the review versus who was reassigned away first.</p>
+      <div class="tornado-head">
+        <div class="th-left">← Reassigned Away Before Reviewing</div>
+        <div class="th-mid">Reviewer</div>
+        <div class="th-right">Completed After Reassignment →</div>
+      </div>
+      <div id="reassignTornado"></div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Netting the two sides of the chart shows an asymmetry the raw bars don't: Vitiyataran (+3) and Tan (+2) are modest net gainers from reassignment — completing more handoffs than they lose — Lim is exactly balanced (0), and Rose is a clear net loser (-5: reassigned away from 8, only picked up 3 of her own). Rose isn't just "reassigned most often" — she's the only person for whom reassignment is a one-way drain rather than a wash.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>The reassignment mechanism itself works correctly — ownership transfers cleanly and the new assignee can act. Worth confirming with the team whether losing 100% of the original assignee's context on every handoff (no partial review carried over) is acceptable, or whether a handoff note should become mandatory.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Monthly Trend -->
+    <section class="dcr-section">
+      <h2 class="section-title">Is This Getting Better or Worse Over Time?</h2>
+      <p class="section-sub">Pass rate and average cycle time by month, January through August 2026.</p>
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Pass Rate by Month</h3>
+          <div class="linechart-wrap" id="monthPassLine"></div>
+        </div>
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Avg. Cycle Time by Month</h3>
+          <div class="linechart-wrap" id="monthCycleLine"></div>
+        </div>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>Pass rate and cycle time move in lockstep every month, in both directions, with no exception across all eight months — when pass rate rises, cycle time falls, and when pass rate drops in June (73.5%), cycle time rises right alongside it (4.2 days). That's worth noting because these two metrics don't have to move together: a process can get faster by rejecting less carefully, trading pass rate for speed. This one doesn't show that trade-off anywhere in eight months of data — rejections aren't being waved through to hit a speed target, and speed isn't being sacrificed to be more careful. Whatever improved Jan–May and whatever dipped in June affected both metrics as one underlying process, not two competing ones.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>Worth documenting what drove the steady Jan–May improvement so it can be deliberately sustained, and separately investigating what caused the June dip — a process fix, a staffing change, or just a rough patch — so it can be defended against and caught earlier next time.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Model-Based Analysis -->
+    <section class="dcr-section">
+      <h2 class="section-title">Model-Based Analysis</h2>
+      <p class="section-sub">Which product model families generate the most change requests, and which carry the highest rejection/cancellation risk (families with at least 3 requests).</p>
+      <div class="grid-2">
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Top 10 Model Families by Volume</h3>
+          <div class="barchart narrow" id="modelVolumeChart"></div>
+        </div>
+        <div>
+          <h3 style="font-size:14px;margin:0 0 10px;">Top 10 Model Families by Risk</h3>
+          <div class="barchart narrow" id="modelRiskChart"></div>
+        </div>
+      </div>
+      <div class="evidence-grid">
+        <div class="ebox">
+          <div class="eb-label">Analysis and Insights</div>
+          <p>PNL has the highest failure rate by far (57.1%, 4 of 7) — the one that looks most alarming on paper. But WH and PCB, at a lower rate each (37.5%), each produce more actual failures: 6 apiece versus PNL's 4, simply because they run over twice PNL's volume (16 vs. 7). The same rate-vs-impact gap shows up here as in the category breakdown above: PNL is the higher-risk family per submission, but WH and PCB are causing more total non-completions in the pipeline right now, and a fix aimed only at the highest percentage would miss the bigger source of actual failures.</p>
+        </div>
+        <div class="ebox action">
+          <div class="eb-label">Actionable Items</div>
+          <p>WH and PCB are the ones to prioritize: both are high-volume and high-risk at once, unlike PNL which is high-risk but comparatively low-volume. A targeted design review checklist for WH and PCB-family changes would address the biggest combined exposure.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Recommendations -->
+    <section class="dcr-section">
+      <h2 class="section-title">Top Recommendations</h2>
+      <p class="section-sub">Pulling the highest-impact actions from every section above into one prioritized list.</p>
+      <div class="reco-list">
+        <div class="reco-item priority">
+          <div class="reco-num">1</div>
+          <div>
+            <div class="reco-title">Rebalance Tan's Examiner queue and escalate the 2 overdue items now</div>
+            <div class="reco-body">Tan holds 6 of the 15 open Pending Examiner requests (40.0%) and both currently-overdue items — one 39 days past due. Move 2–3 of those requests to Rose or Lim immediately; this is the single most concentrated, currently-active risk in the module.</div>
+          </div>
+        </div>
+        <div class="reco-item priority">
+          <div class="reco-num">2</div>
+          <div>
+            <div class="reco-title">Add a submission completeness check, and pre-Admin triage on high-risk reasons</div>
+            <div class="reco-body">All 9 of Admin's rejections are paperwork gaps — a missing check sheet, a blank evaluation section, or a conflicting test report — never a technical judgment call; a mandatory-fields check at submission would eliminate them outright. Separately, "Evaluation / analysis mismatch" (27.3%) and "Miss to evaluate / analysis" (25.5%) intake reasons still carry rejection rates more than double the module average further downstream; auto-flagging those for a pre-Admin technical sanity check would catch the deeper problems 2–3 stages earlier than today.</div>
+          </div>
+        </div>
+        <div class="reco-item">
+          <div class="reco-num">3</div>
+          <div>
+            <div class="reco-title">Target Electronics, PCB &amp; Sensors and Structural, Housing &amp; Mounting for a design review checklist</div>
+            <div class="reco-body">Electronics, PCB &amp; Sensors has the highest non-completion rate (32.0%, 8 of 25) on a solid sample, and Structural, Housing &amp; Mounting is both the highest-volume category (37 requests) and a newly-elevated risk (27.0%). At the model level, the WH and PCB families combine high volume with a 37.5% non-completion rate each.</div>
+          </div>
+        </div>
+        <div class="reco-item">
+          <div class="reco-num">4</div>
+          <div>
+            <div class="reco-title">Backfill the remaining resubmission links, then make it mandatory</div>
+            <div class="reco-body">10 of 29 rejections have been resubmitted, but only the 5 known Jan–May pairs are formally linked back to the original entry they replaced — all 5 closed successfully after being fixed. The other 5 (June/July) predate that tracking and aren't connected to an original; worth tracking those down if possible, and making the link mandatory on every future resubmission so this traceability doesn't lapse again.</div>
+          </div>
+        </div>
+        <div class="reco-item">
+          <div class="reco-num">5</div>
+          <div>
+            <div class="reco-title">Tighten internal due dates across all four reviewers</div>
+            <div class="reco-body">On-time rates now sit in a tight 96.2–97.4% band for everyone — no longer a single-person problem, but every reviewer still has a handful of late approvals. Setting internal due dates a day ahead of the formal deadline would build in slack module-wide.</div>
+          </div>
+        </div>
+        <div class="reco-item">
+          <div class="reco-num">6</div>
+          <div>
+            <div class="reco-title">Decide whether a reassignment handoff note should be mandatory</div>
+            <div class="reco-body">20 requests have now been handed off mid-review, and none of the original assignee's context carries over today. Rose in particular has been reassigned away from 8 of her original assignments without completing any of them. Worth confirming with the team whether that's an acceptable cost of the reassignment mechanism or a gap worth closing.</div>
+          </div>
+        </div>
+        <div class="reco-item">
+          <div class="reco-num">7</div>
+          <div>
+            <div class="reco-title">Document what drove the Jan–May improvement, and what caused the June dip</div>
+            <div class="reco-body">Pass rate climbed from 60.0% to 90.0% and cycle time fell from 5.0 to 2.7 days across the first five months — a real trend worth protecting deliberately. June's dip (73.5% pass, 4.2-day cycle) and the July/August recovery are both worth a retrospective so either pattern can be repeated or avoided on purpose next time.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="page-foot">
+      Generated from the Design Change Request approval module · Snapshot as of 2026-08-12 · 198 entries
+    </footer>
+  </div>
+</div>
+
+<script>
+  // ---- Theme toggle ----
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  btn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    if (current === 'dark') { root.setAttribute('data-theme', 'light'); }
+    else if (current === 'light') { root.removeAttribute('data-theme'); }
+    else { root.setAttribute('data-theme', 'dark'); }
+  });
+
+  function renderBarChart(containerId, data, opts = {}) {
+    const el = document.getElementById(containerId);
+    const max = opts.max || Math.max(...data.map(d => d.value)) || 1;
+    const colorFor = (d) => d.color || opts.singleColor || 'var(--series-1)';
+    el.innerHTML = data.map(d => {
+      const widthPct = (d.value / max * 100).toFixed(1);
+      const color = colorFor(d);
+      const valueLabel = d.valueLabel || `${d.value} · ${d.pct}`;
+      const track = opts.lollipop
+        ? `<div class="bar-track"><div class="lollipop-line" style="width:${widthPct}%; --bar-color:${color}"></div><div class="lollipop-dot" style="left:${widthPct}%; --bar-color:${color}" title="${d.label}: ${valueLabel}"></div></div>`
+        : `<div class="bar-track"><div class="bar-fill" style="width:${widthPct}%; --bar-color:${color}" title="${d.label}: ${valueLabel}"></div></div>`;
+      return `
+        <div class="bar-row">
+          <div class="bar-label">${d.label}</div>
+          ${track}
+          <div class="bar-value">${valueLabel}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ---- Split bar (two stacked segments by type, e.g. Rejected vs Cancelled) ----
+  function renderSplitBarChart(containerId, data, opts = {}) {
+    const el = document.getElementById(containerId);
+    const max = opts.max || Math.max(...data.map(d => d.a.value + d.b.value)) || 1;
+    el.innerHTML = data.map(d => {
+      const aPct = (d.a.value / max * 100).toFixed(1);
+      const bPct = (d.b.value / max * 100).toFixed(1);
+      return `
+        <div class="split-bar-row">
+          <div class="split-label">${d.label}</div>
+          <div class="split-track">
+            <div class="split-seg rejected" style="width:${aPct}%" title="${d.label} — ${d.a.name}: ${d.a.count} (${d.a.value}%)"></div>
+            <div class="split-seg cancelled" style="width:${bPct}%" title="${d.label} — ${d.b.name}: ${d.b.count} (${d.b.value}%)"></div>
+          </div>
+          <div class="split-value"><span class="sv-total">${d.totalLabel}</span><span class="sv-detail">${d.a.count} rej · ${d.b.count} canc</span></div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderWorkloadChart(containerId, data) {
+    const el = document.getElementById(containerId);
+    const max = Math.max(...data.map(d => d.total));
+    el.innerHTML = data.map(p => {
+      const segs = [
+        { key: 'admin', label: 'Admin', val: p.admin, color: 'var(--series-1)' },
+        { key: 'examiner', label: 'Examiner', val: p.examiner, color: 'var(--series-2)' },
+        { key: 'approver', label: 'Approver', val: p.approver, color: 'var(--series-3)' },
+        { key: 'qa', label: 'QA Approver', val: p.qa, color: 'var(--series-4)' },
+      ];
+      const totalWidthPct = (p.total / max * 100).toFixed(1);
+      const segHtml = segs.map(s => {
+        const segPct = p.total ? (s.val / p.total * 100).toFixed(1) : 0;
+        return `<div class="wp-seg" style="width:${segPct}%; background:${s.color}" title="${s.label}: ${s.val}"></div>`;
+      }).join('');
+      return `
+        <div class="workload-person">
+          <div class="wp-head"><span class="name">${p.name}</span><span class="total">${p.total} total assignments</span></div>
+          <div class="wp-bars" style="width:${totalWidthPct}%">${segHtml}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ---- Donut chart ----
+  function polarToCartesian(cx, cy, r, angleDeg) {
+    const rad = angleDeg * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+  function renderDonutChart(chartId, legendId, data, opts = {}) {
+    const size = opts.size || 200;
+    const r = size / 2 - 6;
+    const innerR = r * 0.58;
+    const cx = size / 2, cy = size / 2;
+    const total = data.reduce((s, d) => s + d.value, 0);
+    let angle = -90;
+    const paths = data.map(d => {
+      const frac = d.value / total;
+      const start = angle;
+      const end = angle + frac * 360;
+      angle = end;
+      const large = (end - start) > 180 ? 1 : 0;
+      const so = polarToCartesian(cx, cy, r, start);
+      const eo = polarToCartesian(cx, cy, r, end);
+      const si = polarToCartesian(cx, cy, innerR, end);
+      const ei = polarToCartesian(cx, cy, innerR, start);
+      const path = `M ${so.x.toFixed(2)} ${so.y.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${eo.x.toFixed(2)} ${eo.y.toFixed(2)} L ${si.x.toFixed(2)} ${si.y.toFixed(2)} A ${innerR} ${innerR} 0 ${large} 0 ${ei.x.toFixed(2)} ${ei.y.toFixed(2)} Z`;
+      return `<path d="${path}" fill="${d.color}" stroke="var(--surface-1)" stroke-width="2"><title>${d.label}: ${d.valueLabel}</title></path>`;
+    }).join('');
+    document.getElementById(chartId).innerHTML = `
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        ${paths}
+        <text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="24" font-weight="800" fill="var(--text-primary)">${total}</text>
+        <text x="${cx}" y="${cy + 16}" text-anchor="middle" font-size="10.5" fill="var(--text-secondary)" style="text-transform:uppercase;letter-spacing:.05em;">entries</text>
+      </svg>`;
+    document.getElementById(legendId).innerHTML = data.map(d => `
+      <div class="dl-row">
+        <span class="dl-swatch" style="background:${d.color}"></span>
+        <span class="dl-name">${d.label}</span>
+        <span class="dl-val">${d.valueLabel}</span>
+      </div>`).join('');
+  }
+
+  // ---- Tornado (diverging) chart ----
+  function renderTornadoChart(containerId, data, opts = {}) {
+    const el = document.getElementById(containerId);
+    const max = opts.max || Math.max(...data.flatMap(d => [d.left.value, d.right.value])) || 1;
+    el.innerHTML = data.map(d => {
+      const lPct = (d.left.value / max * 100).toFixed(1);
+      const rPct = (d.right.value / max * 100).toFixed(1);
+      return `
+        <div class="tornado-row">
+          <div class="tornado-left">
+            <span class="tornado-val">${d.left.value}</span>
+            <div class="tornado-bar" style="width:${lPct}%; background:${d.left.color}" title="${d.label} — reassigned away before reviewing: ${d.left.value}"></div>
+          </div>
+          <div class="tornado-mid">${d.label}</div>
+          <div class="tornado-right">
+            <div class="tornado-bar" style="width:${rPct}%; background:${d.right.color}" title="${d.label} — completed after reassignment: ${d.right.value}"></div>
+            <span class="tornado-val">${d.right.value}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ---- Radial gauge ----
+  function renderGaugeRow(containerId, data, opts = {}) {
+    const size = opts.size || 108;
+    const stroke = 9;
+    const r = (size - stroke) / 2;
+    const cx = size / 2, cy = size / 2;
+    const circumference = 2 * Math.PI * r;
+    document.getElementById(containerId).innerHTML = data.map(d => {
+      const pct = Math.max(0, Math.min(1, d.value / 100));
+      const dash = (circumference * pct).toFixed(2);
+      const gap = (circumference - circumference * pct).toFixed(2);
+      return `
+        <div class="gauge-item">
+          <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--gridline)" stroke-width="${stroke}" />
+            <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}" stroke-width="${stroke}"
+              stroke-dasharray="${dash} ${gap}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})">
+              <title>${d.label}: ${d.valueLabel}</title>
+            </circle>
+            <text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="17" font-weight="800" fill="var(--text-primary)">${d.value}%</text>
+          </svg>
+          <div class="gauge-label">${d.label}</div>
+          <div class="gauge-sub">${d.valueLabel}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ---- Line chart ----
+  function renderLineChart(containerId, data, opts = {}) {
+    const w = opts.width || 340, h = opts.height || 170;
+    const padL = 30, padR = 30, padT = 18, padB = 26;
+    const plotW = w - padL - padR, plotH = h - padT - padB;
+    const max = opts.max ?? Math.max(...data.map(d => d.value));
+    const min = opts.min ?? 0;
+    const range = (max - min) || 1;
+    const stepX = data.length > 1 ? plotW / (data.length - 1) : 0;
+    const color = opts.color || 'var(--series-1)';
+    const points = data.map((d, i) => ({
+      x: padL + i * stepX,
+      y: padT + plotH - ((d.value - min) / range) * plotH,
+      d,
+    }));
+    const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+    const gridLines = [0, 0.5, 1].map(f => {
+      const y = padT + plotH * f;
+      return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${w - padR}" y2="${y.toFixed(1)}" stroke="var(--gridline)" stroke-width="1" />`;
+    }).join('');
+    const dots = points.map(p => `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="${color}" stroke="var(--surface-1)" stroke-width="1.5"><title>${p.d.label}: ${p.d.valueLabel}</title></circle>`).join('');
+    // Stagger label offset on alternating points when there are enough points that
+    // adjacent labels risk touching (e.g. an 8-month trend) — keeps every value legible
+    // without needing to drop any. Clamped so it never pushes past the viewBox top.
+    const staggerLabels = data.length >= 6;
+    const valueLabels = points.map((p, i) => {
+      const offset = staggerLabels && i % 2 === 1 ? 22 : 12;
+      const y = Math.max(10, p.y - offset);
+      return `<text x="${p.x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--text-primary)">${p.d.valueLabel}</text>`;
+    }).join('');
+    const xLabels = points.map(p => `<text x="${p.x.toFixed(1)}" y="${h - 8}" text-anchor="middle" font-size="11" fill="var(--text-secondary)">${p.d.label}</text>`).join('');
+    document.getElementById(containerId).innerHTML = `
+      <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">
+        ${gridLines}
+        <path d="${linePath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        ${dots}
+        ${valueLabels}
+        ${xLabels}
+      </svg>`;
+  }
+
+  // Pipeline / Workflow State — donut
+  // "Pending X" stages reuse the same 4 role colors as the Workload Distribution
+  // legend below (Admin/Examiner/Approver/QA Approver), so a color means the same
+  // stage everywhere on the page.
+  const pipelineData = [
+    { label: 'Closed', value: 116, valueLabel: '116 · 58.6%', color: 'var(--good)' },
+    { label: 'Rejected', value: 29, valueLabel: '29 · 14.6%', color: 'var(--critical)' },
+    { label: 'Cancelled', value: 17, valueLabel: '17 · 8.6%', color: 'var(--text-muted)' },
+    { label: 'Pending Examiner', value: 15, valueLabel: '15 · 7.6%', color: 'var(--series-2)' },
+    { label: 'Pending Approver', value: 9, valueLabel: '9 · 4.5%', color: 'var(--series-3)' },
+    { label: 'Pending QA Approver', value: 7, valueLabel: '7 · 3.5%', color: 'var(--series-4)' },
+    { label: 'Pending Admin', value: 5, valueLabel: '5 · 2.5%', color: 'var(--series-1)' },
+  ];
+  renderDonutChart('pipelineDonut', 'pipelineLegend', pipelineData);
+
+  // Workload Distribution
+  const workloadData = [
+    { name: 'Tan', total: 182, admin: 59, examiner: 50, approver: 35, qa: 38 },
+    { name: 'Vitiyataran', total: 178, admin: 58, examiner: 47, approver: 40, qa: 33 },
+    { name: 'Rose', total: 177, admin: 57, examiner: 47, approver: 39, qa: 34 },
+    { name: 'Lim', total: 76, admin: 22, examiner: 22, approver: 17, qa: 15 },
+  ];
+  renderWorkloadChart('workloadChart', workloadData);
+
+  const personBottleneckData = [
+    { label: 'Tan', value: 6, valueLabel: '6 · 40.0%', color: 'var(--critical)' },
+    { label: 'Vitiyataran', value: 4, valueLabel: '4 · 26.7%', color: 'var(--series-1)' },
+    { label: 'Rose', value: 3, valueLabel: '3 · 20.0%', color: 'var(--series-1)' },
+    { label: 'Lim', value: 2, valueLabel: '2 · 13.3%', color: 'var(--series-1)' },
+  ];
+  renderBarChart('personBottleneckChart', personBottleneckData, { max: 15 });
+
+  // Rejection/Cancellation Rate by Requestor — split into its two causally distinct parts
+  const requestorRateData = [
+    { label: 'Lim', totalLabel: '33.3% (5/15)', a: { name: 'Rejected', value: 26.7, count: 4 }, b: { name: 'Cancelled', value: 6.7, count: 1 } },
+    { label: 'Rose', totalLabel: '25.0% (15/60)', a: { name: 'Rejected', value: 15.0, count: 9 }, b: { name: 'Cancelled', value: 10.0, count: 6 } },
+    { label: 'Tan', totalLabel: '21.3% (13/61)', a: { name: 'Rejected', value: 13.1, count: 8 }, b: { name: 'Cancelled', value: 8.2, count: 5 } },
+    { label: 'Vitiyataran', totalLabel: '21.0% (13/62)', a: { name: 'Rejected', value: 12.9, count: 8 }, b: { name: 'Cancelled', value: 8.1, count: 5 } },
+  ];
+  renderSplitBarChart('requestorRateChart', requestorRateData, { max: 34 });
+
+  // Category Volume
+  const categoryVolumeData = [
+    { label: 'Structural, Housing & Mounting', value: 37, valueLabel: '37 · 18.7%', color: 'var(--series-1)' },
+    { label: 'Electrical & Wiring', value: 36, valueLabel: '36 · 18.2%', color: 'var(--series-1)' },
+    { label: 'Fluid, Sealing & Pneumatic', value: 28, valueLabel: '28 · 14.1%', color: 'var(--series-1)' },
+    { label: 'Electronics, PCB & Sensors', value: 25, valueLabel: '25 · 12.6%', color: 'var(--series-1)' },
+    { label: 'Optical & Indicators', value: 19, valueLabel: '19 · 9.6%', color: 'var(--series-1)' },
+    { label: 'Springs', value: 15, valueLabel: '15 · 7.6%', color: 'var(--series-1)' },
+    { label: 'Fasteners & Hardware', value: 13, valueLabel: '13 · 6.6%', color: 'var(--series-1)' },
+    { label: 'Bearings', value: 13, valueLabel: '13 · 6.6%', color: 'var(--series-1)' },
+    { label: 'Gears & Drive', value: 12, valueLabel: '12 · 6.1%', color: 'var(--series-1)' },
+  ];
+  renderBarChart('categoryVolumeChart', categoryVolumeData, { max: 40 });
+
+  // Category Risk
+  const categoryRiskData = [
+    { label: 'Electronics, PCB & Sensors', value: 32.0, valueLabel: '32.0% (8/25)', color: 'var(--critical)' },
+    { label: 'Fasteners & Hardware', value: 30.8, valueLabel: '30.8% (4/13)', color: 'var(--critical)' },
+    { label: 'Structural, Housing & Mounting', value: 27.0, valueLabel: '27.0% (10/37)', color: 'var(--serious)' },
+    { label: 'Optical & Indicators', value: 26.3, valueLabel: '26.3% (5/19)', color: 'var(--serious)' },
+    { label: 'Gears & Drive', value: 25.0, valueLabel: '25.0% (3/12)', color: 'var(--serious)' },
+    { label: 'Springs', value: 20.0, valueLabel: '20.0% (3/15)', color: 'var(--warning)' },
+    { label: 'Fluid, Sealing & Pneumatic', value: 17.9, valueLabel: '17.9% (5/28)', color: 'var(--warning)' },
+    { label: 'Electrical & Wiring', value: 16.7, valueLabel: '16.7% (6/36)', color: 'var(--warning)' },
+    { label: 'Bearings', value: 15.4, valueLabel: '15.4% (2/13)', color: 'var(--good)' },
+  ];
+  renderBarChart('categoryRiskChart', categoryRiskData, { max: 35 });
+
+  // Request Reason risk
+  const reasonRiskData = [
+    { label: 'Evaluation / analysis mismatch', value: 27.3, valueLabel: '27.3% (12/44)', color: 'var(--critical)' },
+    { label: 'Miss to evaluate / analysis', value: 25.5, valueLabel: '25.5% (12/47)', color: 'var(--critical)' },
+    { label: 'Failure due to new technical element', value: 11.4, valueLabel: '11.4% (4/35)', color: 'var(--warning)' },
+    { label: 'Simple mistake (check sheet not available)', value: 2.9, valueLabel: '2.9% (1/35)', color: 'var(--good)' },
+    { label: 'Simple mistake (check sheet available)', value: 0.0, valueLabel: '0.0% (0/37)', color: 'var(--good)' },
+  ];
+  renderBarChart('reasonRiskChart', reasonRiskData, { max: 30 });
+
+  // Rejections by stage
+  const rejectStageData = [
+    { label: 'Examiner', value: 14, valueLabel: '14 · 48.3%', color: 'var(--critical)' },
+    { label: 'Admin', value: 9, valueLabel: '9 · 31.0%', color: 'var(--serious)' },
+    { label: 'Approver', value: 6, valueLabel: '6 · 20.7%', color: 'var(--warning)' },
+    { label: 'QA Approver', value: 0, valueLabel: '0 · 0.0%', color: 'var(--good)' },
+  ];
+  renderBarChart('rejectStageChart', rejectStageData, { max: 16 });
+
+  // Rejection reason by approval role (real Reject Reason field, not the intake-stated reason)
+  const rootCauseAdminData = [
+    { label: 'Evaluation/analysis section incomplete at submission', value: 5, valueLabel: '5 · 55.6%', color: 'var(--series-1)' },
+    { label: 'Test report conflicts with evaluation stated', value: 3, valueLabel: '3 · 33.3%', color: 'var(--series-1)' },
+    { label: 'Check sheet not attached at submission', value: 1, valueLabel: '1 · 11.1%', color: 'var(--series-1)' },
+  ];
+  renderBarChart('rootCauseAdminChart', rootCauseAdminData, { max: 6 });
+
+  const rootCauseExaminerData = [
+    { label: 'Required test/evaluation not completed', value: 6, valueLabel: '6 · 42.9%', color: 'var(--series-2)' },
+    { label: 'Test results do not match submitted evaluation', value: 6, valueLabel: '6 · 42.9%', color: 'var(--series-2)' },
+    { label: 'New technical element not yet validated', value: 2, valueLabel: '2 · 14.3%', color: 'var(--series-2)' },
+  ];
+  renderBarChart('rootCauseExaminerChart', rootCauseExaminerData, { max: 6 });
+
+  const rootCauseApproverData = [
+    { label: 'Retest data still inconsistent with actual test', value: 3, valueLabel: '3 · 50.0%', color: 'var(--series-3)' },
+    { label: 'New technical element does not meet design criteria', value: 2, valueLabel: '2 · 33.3%', color: 'var(--series-3)' },
+    { label: 'Evaluation insufficient to justify design change', value: 1, valueLabel: '1 · 16.7%', color: 'var(--series-3)' },
+  ];
+  renderBarChart('rootCauseApproverChart', rootCauseApproverData, { max: 6 });
+
+  // Cycle time
+  const cycleTimeData = [
+    { label: '3 days', value: 77, valueLabel: '77 · 69.4%', color: 'var(--good)' },
+    { label: '6 days', value: 14, valueLabel: '14 · 12.6%', color: 'var(--warning)' },
+    { label: '4 days', value: 12, valueLabel: '12 · 10.8%', color: 'var(--good)' },
+    { label: '5 days', value: 5, valueLabel: '5 · 4.5%', color: 'var(--warning)' },
+    { label: '2 days', value: 2, valueLabel: '2 · 1.8%', color: 'var(--good)' },
+  ];
+  renderBarChart('cycleTimeChart', cycleTimeData);
+
+  // On-time rate — gauges
+  const onTimeGaugeData = [
+    { label: 'Lim', value: 97.4, valueLabel: '74/76', color: 'var(--warning)' },
+    { label: 'Vitiyataran', value: 97.2, valueLabel: '173/178', color: 'var(--warning)' },
+    { label: 'Rose', value: 96.6, valueLabel: '171/177', color: 'var(--warning)' },
+    { label: 'Tan', value: 96.2, valueLabel: '175/182', color: 'var(--warning)' },
+  ];
+  renderGaugeRow('onTimeGauges', onTimeGaugeData);
+
+  // Approval timing buffer
+  const timingBufferData = [
+    { label: '1 day to spare', value: 298, valueLabel: '298', color: 'var(--good)' },
+    { label: '2 days to spare', value: 149, valueLabel: '149', color: 'var(--good)' },
+    { label: 'Landed on due date', value: 52, valueLabel: '52', color: 'var(--warning)' },
+    { label: '2 days late', value: 13, valueLabel: '13', color: 'var(--critical)' },
+    { label: '1 day late', value: 5, valueLabel: '5', color: 'var(--critical)' },
+  ];
+  renderBarChart('timingBufferChart', timingBufferData, { max: 320 });
+
+  // Overdue by reviewer
+  const overdueReviewerData = [
+    { label: 'Tan', value: 2, valueLabel: '2 · 100%', color: 'var(--critical)' },
+    { label: 'Rose', value: 0, valueLabel: '0 · 0%', color: 'var(--good)' },
+    { label: 'Vitiyataran', value: 0, valueLabel: '0 · 0%', color: 'var(--good)' },
+    { label: 'Lim', value: 0, valueLabel: '0 · 0%', color: 'var(--good)' },
+  ];
+  renderBarChart('overdueReviewerChart', overdueReviewerData, { max: 2 });
+
+  // Reassignment audit — tornado
+  const reassignTornadoData = [
+    { label: 'Tan', left: { value: 6, color: 'var(--serious)' }, right: { value: 8, color: 'var(--series-1)' } },
+    { label: 'Rose', left: { value: 8, color: 'var(--critical)' }, right: { value: 3, color: 'var(--series-1)' } },
+    { label: 'Vitiyataran', left: { value: 3, color: 'var(--serious)' }, right: { value: 6, color: 'var(--series-1)' } },
+    { label: 'Lim', left: { value: 3, color: 'var(--serious)' }, right: { value: 3, color: 'var(--series-1)' } },
+  ];
+  renderTornadoChart('reassignTornado', reassignTornadoData, { max: 8 });
+
+  // Monthly trend — line charts
+  const monthPassData = [
+    { label: 'Jan', value: 60.0, valueLabel: '60.0%' },
+    { label: 'Feb', value: 70.0, valueLabel: '70.0%' },
+    { label: 'Mar', value: 77.8, valueLabel: '77.8%' },
+    { label: 'Apr', value: 80.0, valueLabel: '80.0%' },
+    { label: 'May', value: 90.0, valueLabel: '90.0%' },
+    { label: 'Jun', value: 73.5, valueLabel: '73.5%' },
+    { label: 'Jul', value: 87.5, valueLabel: '87.5%' },
+    { label: 'Aug', value: 86.7, valueLabel: '86.7%' },
+  ];
+  renderLineChart('monthPassLine', monthPassData, { max: 100, min: 40, color: 'var(--series-1)' });
+
+  const monthCycleData = [
+    { label: 'Jan', value: 5.0, valueLabel: '5.0d' },
+    { label: 'Feb', value: 4.1, valueLabel: '4.1d' },
+    { label: 'Mar', value: 3.7, valueLabel: '3.7d' },
+    { label: 'Apr', value: 3.1, valueLabel: '3.1d' },
+    { label: 'May', value: 2.7, valueLabel: '2.7d' },
+    { label: 'Jun', value: 4.2, valueLabel: '4.2d' },
+    { label: 'Jul', value: 3.2, valueLabel: '3.2d' },
+    { label: 'Aug', value: 3.0, valueLabel: '3.0d' },
+  ];
+  renderLineChart('monthCycleLine', monthCycleData, { max: 6, min: 2, color: 'var(--series-2)' });
+
+  // Model-based analysis
+  const modelVolumeData = [
+    { label: 'LNS', value: 16, valueLabel: '16 · 8.1%', color: 'var(--series-1)' },
+    { label: 'PCB', value: 16, valueLabel: '16 · 8.1%', color: 'var(--series-1)' },
+    { label: 'WH', value: 16, valueLabel: '16 · 8.1%', color: 'var(--series-1)' },
+    { label: 'GSK', value: 15, valueLabel: '15 · 7.6%', color: 'var(--series-1)' },
+    { label: 'HSG', value: 14, valueLabel: '14 · 7.1%', color: 'var(--series-1)' },
+    { label: 'SPR', value: 14, valueLabel: '14 · 7.1%', color: 'var(--series-1)' },
+    { label: 'BRG', value: 13, valueLabel: '13 · 6.6%', color: 'var(--series-1)' },
+    { label: 'GER', value: 12, valueLabel: '12 · 6.1%', color: 'var(--series-1)' },
+    { label: 'SCR', value: 12, valueLabel: '12 · 6.1%', color: 'var(--series-1)' },
+    { label: 'BRK', value: 7, valueLabel: '7 · 3.5%', color: 'var(--series-1)' },
+  ];
+  renderBarChart('modelVolumeChart', modelVolumeData, { max: 18 });
+
+  const modelRiskData = [
+    { label: 'PNL', value: 57.1, valueLabel: '57.1% (4/7)', color: 'var(--critical)' },
+    { label: 'WH', value: 37.5, valueLabel: '37.5% (6/16)', color: 'var(--critical)' },
+    { label: 'PCB', value: 37.5, valueLabel: '37.5% (6/16)', color: 'var(--critical)' },
+    { label: 'GSK', value: 33.3, valueLabel: '33.3% (5/15)', color: 'var(--serious)' },
+    { label: 'SCR', value: 33.3, valueLabel: '33.3% (4/12)', color: 'var(--serious)' },
+    { label: 'LTB', value: 33.3, valueLabel: '33.3% (1/3)', color: 'var(--serious)' },
+    { label: 'HSG', value: 28.6, valueLabel: '28.6% (4/14)', color: 'var(--warning)' },
+    { label: 'SNS', value: 28.6, valueLabel: '28.6% (2/7)', color: 'var(--warning)' },
+    { label: 'LNS', value: 25.0, valueLabel: '25.0% (4/16)', color: 'var(--warning)' },
+    { label: 'GER', value: 25.0, valueLabel: '25.0% (3/12)', color: 'var(--warning)' },
+  ];
+  renderBarChart('modelRiskChart', modelRiskData, { max: 60 });
+</script>
+</body>
+</html>
